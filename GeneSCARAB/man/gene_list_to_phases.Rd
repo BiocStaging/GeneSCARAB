@@ -11,7 +11,8 @@ gene_list_to_phases(gene.list, phase.table)
 of create_gene_list_go and create_gene_list_kegg)}
 
 \item{phase.table}{Table showing acrophases for the
-complete gene set under study, stated in hours}
+complete gene set under study, stated in hours. It must have two
+columns, named "names" and "phase"}
 }
 \value{
 A list containing phase tables for each process or gene set

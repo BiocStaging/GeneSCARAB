@@ -264,7 +264,6 @@ KuiperPGroupedRad <- function(sample, m, iter = 9999) {
 }
 
 
-
 #' Extraction of all ancestors of a given GO terms vector
 #'
 #' Function to extract all ancestors of given GO terms
@@ -308,6 +307,53 @@ get_ancestor_for_gene_lists <- function(go_vector) {
 }
 
 
+#' Input checking for create_gene_list_go
+#'
+#' Helper function checking correctness of input for
+#' create_gene_list_go and generating a data.frame with
+#' all the GO terms per gene
+#'
+#' @param go_vector GO terms vector to be included in the
+#' analysis, along with their ancestors. "all" takes the
+#' complete set from the annotation package
+#' @param org.package Species annotation package
+#' @param go_column GO term column name in the annotation package
+#' @param id_column Gene ID column name in the annotation package
+#'
+#' @returns A data.frame showing GO terms per gene as appear
+#' in the annotation package
+#'
+input_create_gene_list_go <- function(go_vector, org.package,
+                                      go_column, id_column) {
+    if (!is.character(go_vector)) {
+        stop("Input must be a vector of GO terms as characters.")
+    }
+
+    if (!(org.package %in% rownames(installed.packages()))) {
+        stop("Annotation package name do not correspond to an installed
+         package.")
+    }
+
+    if (!(go_column %in% AnnotationDbi::columns(
+        getExportedValue(org.package, org.package)
+    )) |
+        !(id_column %in% AnnotationDbi::columns(
+            getExportedValue(org.package, org.package)
+        ))) {
+        stop("ID or GO column names do not match those
+           of the annotation package.")
+    }
+
+    functional_data <- AnnotationDbi::select(
+        get(org.package),
+        keys = AnnotationDbi::keys(get(org.package),
+            keytype = id_column
+        ), columns = c(id_column, go_column)
+    )
+
+    return(functional_data)
+}
+
 #' Creation of input lists for GO terms from an annotation package
 #'
 #' Function to create a list of genes associated with each GO
@@ -337,11 +383,8 @@ create_gene_list_go <- function(go_vector = c("all"),
                                 org.package,
                                 go_column,
                                 id_column) {
-    functional_data <- AnnotationDbi::select(
-        get(org.package),
-        keys = AnnotationDbi::keys(get(org.package),
-            keytype = id_column
-        ), columns = c(id_column, go_column)
+    functional_data <- input_create_gene_list_go(
+        go_vector, org.package, go_column, id_column
     )
     if (length(go_vector) == 1 & go_vector[1] == "all") {
         go_vector <- unique(functional_data[[go_column]])
@@ -351,7 +394,6 @@ create_gene_list_go <- function(go_vector = c("all"),
     # Add go terms in study to the ancestors list to get successors
     query_vec_ancestors <- c(go_vec_ancestors, go_vector)
     query_vec_ancestors <- unique(query_vec_ancestors)
-    # Get succesors
     bp_offspring <- BiocGenerics::mget(
         query_vec_ancestors, GO.db::GOBPOFFSPRING, ifnotfound = NA
     )
@@ -368,10 +410,11 @@ create_gene_list_go <- function(go_vector = c("all"),
         FUN = c, lapply(l_offspring, `[`, l_offspring_keys)
     )), l_offspring_keys)
     go_offspring_clean <- lapply(go_offspring, function(x) {
-        x[!is.na(x)]
-    })
+        x[!is.na(x)]})
     go_offspring_comp <- mapply(
-        function(x, y) { c(x, y) },
+        function(x, y) {
+            c(x, y)
+        },
         go_offspring_clean, names(go_offspring_clean)
     )
     go.list <- lapply(go_offspring_comp, function(x) {
@@ -380,8 +423,75 @@ create_gene_list_go <- function(go_vector = c("all"),
         )[[id_column]]
     })
     go.list <- lapply(go.list, unique)
-
     return(go.list)
+}
+
+
+#' Input checking for create_gene_list_kegg
+#'
+#' Helper function checking correctness of input for
+#' create_gene_list_kegg and generating a data.frame with
+#' all the KOs per gene
+#'
+#' @param ko_vector KO vector to be included in the analysis,
+#' along with their pathways ancestors. "all" takes the
+#' complete set from the annotation package
+#' @param org.package Species annotation package
+#' @param ko_column KO column name in the annotation package
+#' @param id_column Gene ID column name in the annotation package
+#' @param ko_prefix Prefix used to denote KEGG pathways, either
+#' "map" or "ko", depending on package version
+#' @param species Species group to filter final pathways ("all"
+#' for no filtering), either "bacteria", "archaea", "animals",
+#' "plants", "fungi" or "protists"
+#'
+#' @returns A data.frame showing KO terms per gene as appear
+#' in the annotation package
+#'
+input_create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
+                                        ko_column, id_column, ko_prefix = "map",
+                                        species = "all") {
+    if (!is.character(ko_vector)) {
+        stop("Input must be a vector of KO terms as characters.")
+    }
+
+    if (!(org.package %in% rownames(installed.packages()))) {
+        stop("Annotation package name do not correspond to an installed
+         package.")
+    }
+
+    if (!(ko_column %in% AnnotationDbi::columns(
+        getExportedValue(org.package, org.package)
+    )) |
+        !(id_column %in% AnnotationDbi::columns(
+            getExportedValue(org.package, org.package)
+        ))) {
+        stop("ID or KO column names do not match those
+           of the annotation package.")
+    }
+
+    if (!(species %in% c(
+        "all", "bacteria", "archaea", "animals",
+        "plants", "fungi", "protists"
+    ))) {
+        stop("Not supported species group, must be one of:
+         bacteria, archaea, animals,
+         plants, fungi or protists or all.")
+    }
+
+    if (!(ko_prefix %in% c("map", "ko"))) {
+        stop("Pathway prefix must be either map or ko depending
+         on the version.")
+    }
+
+    functional_data <- AnnotationDbi::select(
+        get(org.package),
+        keys = AnnotationDbi::keys(get(org.package),
+            keytype = id_column
+        ), columns = c(id_column, ko_column)
+    )
+
+    return(functional_data)
 }
 
 
@@ -423,24 +533,24 @@ pathways_from_kos <- function(ko_vector, ko_prefix)
     unique_pathways <- unique(unlist(present_pathways))
     map_pathways <- unique_pathways[grep(ko_prefix, unique_pathways)]
     list_pathways <- vapply(strsplit(map_pathways, ":"), function(x) {
-      x[[2]]
+        x[[2]]
     }, character(1))
     {
-      if (length(list_pathways) < 500) {
-        kos_pathways <- KEGGREST::keggLink(
-          "ko", paste0(list_pathways, collapse = "+")
-        )
-      } else {
-        kos_pathways <- KEGGREST::keggLink(
-          "ko", paste0(list_pathways[seq_len(500)], collapse = "+")
-        )
-        for (i in 2:(length(list_pathways) %/% 500 + 1)) {
-          kos_pathways <- append(kos_pathways, KEGGREST::keggLink(
-            "ko", paste0(list_pathways[(1 +
-                                          (500 * (i - 1))):(i * 500)], collapse = "+")
-          ))
+        if (length(list_pathways) < 500) {
+            kos_pathways <- KEGGREST::keggLink(
+                "ko", paste0(list_pathways, collapse = "+")
+            )
+        } else {
+            kos_pathways <- KEGGREST::keggLink(
+                "ko", paste0(list_pathways[seq_len(500)], collapse = "+")
+            )
+            for (i in 2:(length(list_pathways) %/% 500 + 1)) {
+                kos_pathways <- append(kos_pathways, KEGGREST::keggLink(
+                    "ko", paste0(list_pathways[(1 +
+                        (500 * (i - 1))):(i * 500)], collapse = "+")
+                ))
+            }
         }
-      }
     }
     return(kos_pathways)
 }
@@ -480,19 +590,19 @@ pathways_from_kos <- function(ko_vector, ko_prefix)
 create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
                                   ko_column, id_column, ko_prefix = "map",
                                   species = "all") {
-    functional_data <- AnnotationDbi::select(
-        get(org.package),
-        keys = AnnotationDbi::keys(get(org.package),
-            keytype = id_column
-        ), columns = c(id_column, ko_column)
+    functional_data <- input_create_gene_list_kegg(
+        ko_vector, org.package, ko_column, id_column,
+        ko_prefix, species
     )
+
     if (length(ko_vector) == 1 & ko_vector[1] == "all") {
         complete_kos <- unique(functional_data[[ko_column]])
         ko_vector <- complete_kos[!is.na(complete_kos)]
     }
-    kos_pathways <- function(ko_vector, ko_prefix)
+    kos_pathways <- pathways_from_kos(ko_vector, ko_prefix)
     kos_pathways <- tapply(
-        kos_pathways, INDEX = names(kos_pathways),
+        kos_pathways,
+        INDEX = names(kos_pathways),
         FUN = function(x) {
             unlist(x)
         }, simplify = FALSE
@@ -537,7 +647,8 @@ create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
 #' @param gene.list Process or gene sets list (as the output
 #' of create_gene_list_go and create_gene_list_kegg)
 #' @param phase.table Table showing acrophases for the
-#' complete gene set under study, stated in hours
+#' complete gene set under study, stated in hours. It must have two
+#' columns, named "names" and "phase"
 #'
 #' @returns A list containing phase tables for each process or gene set
 #' @export
@@ -559,6 +670,10 @@ create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
 #' )
 #' gene_list_to_phases(go.list.test, total_phases_table_sd)
 gene_list_to_phases <- function(gene.list, phase.table) {
+    if (!all(colnames(phase.table) %in% c("names", "phase"))) {
+        stop("Check that phase table columns are named names and phase,
+         this is needed.")
+    }
     circa_reduced <- lapply(gene.list, function(x) {
         subset(phase.table, names %in% x)
     })
@@ -607,6 +722,22 @@ table_builder <- function(circa_summary, circa_var, circa_kuiper,
     return(circa_table)
 }
 
+#' Input checking for create_circular_table and
+#' create_circular_table_grouped
+#'
+#' Helper function checking correctness of input for
+#' create_circular_table and create_circular_table_grouped
+#'
+#' @param circa_vector Phases vector in hours
+#'
+#' @returns An error if input is not adequate
+#'
+input_create_circular_table <- function(phase.list) {
+    if (!is(circa_vector, "numeric")) {
+        stop("circa_vector must be a numeric vector of phases
+         measured in hours.")
+    }
+}
 
 #' Creation of the circular table and deviation from
 #' the uniform distribution for a single set
@@ -617,7 +748,7 @@ table_builder <- function(circa_summary, circa_var, circa_kuiper,
 #' and their deviations from a circular uniform distribution
 #' based on the Rayleigh, Kuiper, Hermans-Rasson and Rao tests
 #'
-#' @param circa_vector Phases vector
+#' @param circa_vector Phases vector in hours
 #' @param hr.on.large.sets.th Threshold indicating the maximum size
 #' of a set to perform HR test on
 #' @param iter.hr Number of iterations for HR test
@@ -639,11 +770,10 @@ create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
                                   rao.on.large.sets.th = 400,
                                   iter.rao = 999,
                                   force.rao.th = 0.05) {
+    input_create_circular_table()
     circa_radians <- circular::circular(circa_vector * pi / 12)
-    # Calculate circular measures
     circa_summary <- summary(circa_radians)
     circa_var <- circular::var.circular(circa_radians)
-    # Apply tests
     circa_kuiper <- Directional::kuiper(
         circa_radians,
         rads = TRUE, R = 1
@@ -692,7 +822,7 @@ create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
 #' distribution based on Rayleigh and adapted versions of
 #' Kuiper, Hermans-Rasson and Rao tests.
 #'
-#' @param circa_vector Discrete phases vector
+#' @param circa_vector Discrete phases vector in hours
 #' @param n_bins Number of bins
 #' @param hr.on.large.sets.th Threshold indicating the maximum
 #' size of a set to perform HR test on
@@ -723,47 +853,71 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
                                           kuiper.on.large.sets.th = 400,
                                           iter.kuiper = 999,
                                           force.kuiper.th = 0.05) {
+    input_create_circular_table()
     circa_radians <- circular::circular(circa_vector * pi / 12)
     circa_summary <- summary(circa_radians)
     circa_var <- circular::var.circular(circa_radians)
     circa_ray <- circular::rayleigh.test(
-        circa_radians, mu = circular::circular(circa_summary["Mean"])
+        circa_radians,
+        mu = circular::circular(circa_summary["Mean"])
     )$p.value
     if (is.na(circa_ray)) {
         circa_ray <- 1
     }
-    if (iter.kuiper == 0) { circa_kuiper <- NA
-    } else if (isTRUE(circa_ray <= force.kuiper.th)) { circa_kuiper <- NA
+    if (iter.kuiper == 0) {circa_kuiper <- NA
+    } else if (isTRUE(circa_ray <= force.kuiper.th)) {
+        circa_kuiper <- NA
     } else if (isTRUE(length(circa_radians) >= kuiper.on.large.sets.th)) {
         circa_kuiper <- NA
     } else {
         circa_kuiper <- KuiperPGroupedRad(circa_radians,
             m = n_bins, iter = iter.kuiper
-        )
-    }
-    if (iter.hr == 0) { circa_hr <- NA
+        )}
+    if (iter.hr == 0) {circa_hr <- NA
     } else if (isTRUE(circa_ray <= force.hr.th |
         circa_kuiper <= force.hr.th)) { circa_hr <- NA
     } else if (isTRUE(length(circa_radians) >= hr.on.large.sets.th)) {
         circa_hr <- NA
     } else { circa_hr <- HermansRasson2PGroupedRad(circa_radians,
             m = n_bins, iter = iter.hr
-        )
-    }
+        )}
     if (iter.rao == 0) { circa_rao <- NA
     } else if (isTRUE(circa_kuiper <= force.rao.th |
         circa_ray <= force.rao.th | circa_hr <= force.rao.th)) {
         circa_rao <- NA
     } else if (isTRUE(length(circa_radians) >= rao.on.large.sets.th)) {
         circa_rao <- NA
-    } else { circa_rao <- RaoPGroupedRad(
-            circa_radians, m = n_bins, iter = iter.rao
-        )
-    }
+    } else {
+        circa_rao <- RaoPGroupedRad(
+            circa_radians,
+            m = n_bins, iter = iter.rao
+        )}
     circa_table <- table_builder(
         circa_summary, circa_var, circa_kuiper, circa_ray, circa_hr, circa_rao
     )
     return(circa_table)
+}
+
+#' Input checking for complete_circular_table and
+#' complete_circular_table_grouped
+#'
+#' Helper function checking correctness of input for
+#' complete_circular_table and complete_circular_table_grouped
+#'
+#' @param phase.list Phases list in the same format as
+#' the output of gene_list_to_phases
+#'
+#' @returns An error if input is not adequate
+#'
+input_complete_circular_table <- function(phase.list) {
+    if (any(!unique(c(unlist(vapply(phase.list, colnames, character(2))))) %in% c("names", "phase"))) {
+        stop("Check that all tables in the list use names and phase as
+         column names.")
+    }
+
+    if (any(is.null(names(phase.list)))) {
+        stop("phase.list must be a named list.")
+    }
 }
 
 
@@ -842,31 +996,33 @@ complete_circular_table <- function(phase.list,
                                     rao.on.large.sets.th = 400,
                                     iter.rao = 999,
                                     force.rao.th = 0.05) {
+    input_complete_circular_table(phase.list)
     go_circa_res <- lapply(phase.list, function(x) {
         create_circular_table(
             x$phase, hr.on.large.sets.th = hr.on.large.sets.th,
             iter.hr = iter.hr, force.hr.th = force.hr.th,
             rao.on.large.sets.th = rao.on.large.sets.th,
             iter.rao = iter.rao, force.rao.th = force.rao.th
-        )
-    })
-
-    # Adjust p-values due to multiple testing
+        )})
     go_circa_num <- t(vapply(go_circa_res, function(x) {
-        unlist(x[seq_len(7)]) }, numeric(7)))
+        unlist(x[seq_len(7)])
+    }, numeric(7)))
     go_circa_kuiper <- vapply(go_circa_res, function(x) {
-        unlist(x[8]) }, numeric(1))
+        unlist(x[8])
+    }, numeric(1))
     kuiper_bh <- stats::p.adjust(go_circa_kuiper, method = "BH")
     go_circa_ray <- vapply(go_circa_res, function(x) {
-        unlist(x[9]) }, numeric(1))
+        unlist(x[9])
+    }, numeric(1))
     ray_bh <- stats::p.adjust(go_circa_ray, method = "BH")
     go_circa_hr <- vapply(go_circa_res, function(x) {
-        unlist(x[10]) }, numeric(1))
+        unlist(x[10])
+    }, numeric(1))
     rh_bh <- stats::p.adjust(go_circa_hr, method = "BH")
     go_circa_rao <- vapply(go_circa_res, function(x) {
-        unlist(x[11]) }, numeric(1))
+        unlist(x[11])
+    }, numeric(1))
     rao_bh <- stats::p.adjust(go_circa_rao, method = "BH")
-    # Return updated table
     go_circa_table <- data.frame(
         go_circa_num, kuiper_p_value = go_circa_kuiper,
         kuiper_p_value_adj = kuiper_bh,
@@ -880,7 +1036,6 @@ complete_circular_table <- function(phase.list,
         ifelse(as.numeric(x) < 0, 24 + as.numeric(x), as.numeric(x))
     })
     go_circa_table[, 2:5] <- pos_res
-
     return(go_circa_table)
 }
 
@@ -974,6 +1129,7 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
                                             kuiper.on.large.sets.th = 400,
                                             iter.kuiper = 999,
                                             force.kuiper.th = 0.05) {
+    input_complete_circular_table(phase.list)
     go_circa_res <- lapply(phase.list, function(x) {
         create_circular_table_grouped(
             x$phase, n_bins = n_bins,
@@ -983,21 +1139,20 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
             iter.rao = iter.rao, force.rao.th = force.rao.th,
             kuiper.on.large.sets.th = kuiper.on.large.sets.th,
             iter.kuiper = iter.kuiper, force.kuiper.th = force.kuiper.th
-        )
-    })
+        )})
     go_circa_num <- t(vapply(go_circa_res, function(x) {
-        unlist(x[seq_len(7)]) }, numeric(7)))
+        unlist(x[seq_len(7)])}, numeric(7)))
     go_circa_kuiper <- vapply(go_circa_res, function(x) {
-        unlist(x[8]) }, numeric(1))
+        unlist(x[8])}, numeric(1))
     kuiper_bh <- stats::p.adjust(go_circa_kuiper, method = "BH")
     go_circa_ray <- vapply(go_circa_res, function(x) {
-        unlist(x[9]) }, numeric(1))
+        unlist(x[9])}, numeric(1))
     ray_bh <- stats::p.adjust(go_circa_ray, method = "BH")
     go_circa_hr <- vapply(go_circa_res, function(x) {
-        unlist(x[10]) }, numeric(1))
+        unlist(x[10])}, numeric(1))
     rh_bh <- stats::p.adjust(go_circa_hr, method = "BH")
     go_circa_rao <- vapply(go_circa_res, function(x) {
-        unlist(x[11]) }, numeric(1))
+        unlist(x[11])}, numeric(1))
     rao_bh <- stats::p.adjust(go_circa_rao, method = "BH")
     go_circa_table <- data.frame(
         go_circa_num, kuiper_p_value = go_circa_kuiper,
@@ -1074,6 +1229,16 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
 #' )
 #'
 test_against_gen_dist <- function(phase.list, total.phase.table) {
+    if (!("phase" %in% colnames(total.phase.table))) {
+        stop("total.phase.table must have a column named phase.")
+    }
+
+    if (any(!unique(c(unlist(vapply(
+        phase.list, colnames, character(2)
+    )))) %in% c("names", "phase"))) {
+        stop("Check that all tables in the list use names and phase as
+         column names.")
+    }
     gen_dist <- total.phase.table$phase * pi / 12
     len_gen_dist <- length(gen_dist)
 
@@ -1190,6 +1355,14 @@ test_two_dist <- function(phase.list.1, phase.list.2) {
         warning("Set names do not match, check if they should.")
     }
 
+    if (sum(!(unique(c(
+        unlist(vapply(phase.list.1, colnames, character(2))),
+        unlist(vapply(phase.list.2, colnames, character(2)))
+    )) == c("names", "phase"))) != 0) {
+        stop("Check that all tables in both lists use names and phase as
+         column names.")
+    }
+
     p_values_diff_test <- mapply(function(x, y) {
         angles <- c(x$phase * pi / 12, y$phase * pi / 12)
 
@@ -1221,6 +1394,32 @@ test_two_dist <- function(phase.list.1, phase.list.2) {
     return(p_values_diff_table)
 }
 
+#' Input checking for gene_contribution_to_set
+#'
+#' Helper function checking correctness of input for
+#' gene_contribution_to_set and returning a clean phase list
+#'
+#' @param circa_result Table with circular distribution
+#' results, as the output from
+#' complete_circular_table or complete_circular_table_grouped
+#' @param phase_list Phases list in the same format as
+#' the output of gene_list_to_phases, containing the row
+#' names of circa_result as names of each element
+#'
+#' @returns A phase list containing only elements that appear in
+#' circa_result rows
+#'
+input_gene_contribution <- function(circa_result, phase_list) {
+    if (sum(rownames(circa_result) %in% names(phase_list)) == 0) {
+        stop("Names of circa_result rows do not match names of phase_list")
+    }
+    if (any(!unique(c(unlist(vapply(phase_list, colnames, character(2))))) %in% c("names", "phase"))) {
+        stop("Check that all tables in the list use names and phase as
+         column names.")
+    }
+    phase_list <- phase_list[rownames(circa_result)]
+    return(phase_list)
+}
 
 
 #' Contribution of each gene in a set to the temporal
@@ -1299,7 +1498,7 @@ test_two_dist <- function(phase.list.1, phase.list.2) {
 #' )
 #'
 gene_contribution_to_set <- function(circa_result, phase_list) {
-    phase_list <- phase_list[rownames(circa_result)]
+    phase_list <- input_gene_contribution(circa_result, phase_list)
     res_lot <- list()
 
     for (x in names(phase_list))
@@ -1312,9 +1511,10 @@ gene_contribution_to_set <- function(circa_result, phase_list) {
         })
         new_phases <- lapply(new_phases, function(y) {
             if (length(y) > 100) {
-                y[sample(seq_len(length(y)), size = 100, replace = FALSE
-                )]
-            } else { y }
+                y[sample(seq_len(length(y)), size = 100, replace = FALSE)]
+            } else {
+                y
+            }
         })
         new_summaries <- t(vapply(new_phases, function(y) {
             summary(y)
@@ -1330,7 +1530,7 @@ gene_contribution_to_set <- function(circa_result, phase_list) {
         new_summaries[, "Rho"] <- new_summaries[, "Rho"]
         -circa_result[x, "rho"]
         new_summaries <- cbind(new_summaries,
-            Mean_rank = rank(-abs( new_summaries[, "Mean"]))
+            Mean_rank = rank(-abs(new_summaries[, "Mean"]))
         )
         new_summaries <- cbind(new_summaries,
             Rho_rank = rank(-abs(new_summaries[, "Rho"]))
@@ -1348,7 +1548,6 @@ gene_contribution_to_set <- function(circa_result, phase_list) {
 }
 
 
-
 #' Identification of different modes
 #'
 #' Function to determine the extract the Rayleigh p-value
@@ -1361,6 +1560,9 @@ gene_contribution_to_set <- function(circa_result, phase_list) {
 #' f-fold symmetry
 #'
 multimodal_modes_test <- function(phase_table) {
+    if (!("phase" %in% colnames(phase_table))) {
+        stop("No column named phase detected in phase_table")
+    }
     circa_radians <- circular::circular(phase_table$phase * pi / 12)
     modes_summary <- summary(circa_radians)
     modes_ray <- circular::rayleigh.test(

@@ -20,7 +20,7 @@ create_circular_table_grouped(
 )
 }
 \arguments{
-\item{circa_vector}{Discrete phases vector}
+\item{circa_vector}{Discrete phases vector in hours}
 
 \item{n_bins}{Number of bins}
 

@@ -16,7 +16,7 @@ create_circular_table(
 )
 }
 \arguments{
-\item{circa_vector}{Phases vector}
+\item{circa_vector}{Phases vector in hours}
 
 \item{hr.on.large.sets.th}{Threshold indicating the maximum size
 of a set to perform HR test on}
