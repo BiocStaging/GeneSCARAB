@@ -5,7 +5,7 @@
 \title{Input checking for create_circular_table and
 create_circular_table_grouped}
 \usage{
-input_create_circular_table(phase.list)
+input_create_circular_table(circa_vector)
 }
 \arguments{
 \item{circa_vector}{Phases vector in hours}

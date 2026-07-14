@@ -2,6 +2,7 @@ library(testthat)
 library(GeneSCARAB)
 
 test_that("example dataset has expected structure", {
+    data("circa_table_genescarab")
     expect_s3_class(circa_table_genescarab, "data.frame")
     expect_gt(nrow(circa_table_genescarab), 0)
     expect_equal(ncol(circa_table_genescarab), 15)

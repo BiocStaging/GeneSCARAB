@@ -19,7 +19,9 @@ Imports:
     KEGGREST,
     MetBrewer,
     OptCirClust,
-    AnnotationDbi
+    AnnotationDbi,
+    methods,
+    utils
 Depends: 
     R (>= 4.6.0)
 LazyData: false

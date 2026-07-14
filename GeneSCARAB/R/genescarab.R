@@ -329,7 +329,7 @@ input_create_gene_list_go <- function(go_vector, org.package,
         stop("Input must be a vector of GO terms as characters.")
     }
 
-    if (!(org.package %in% rownames(installed.packages()))) {
+    if (!(org.package %in% rownames(utils::installed.packages()))) {
         stop("Annotation package name do not correspond to an installed
          package.")
     }
@@ -455,7 +455,7 @@ input_create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
         stop("Input must be a vector of KO terms as characters.")
     }
 
-    if (!(org.package %in% rownames(installed.packages()))) {
+    if (!(org.package %in% rownames(utils::installed.packages()))) {
         stop("Annotation package name do not correspond to an installed
          package.")
     }
@@ -732,8 +732,8 @@ table_builder <- function(circa_summary, circa_var, circa_kuiper,
 #'
 #' @returns An error if input is not adequate
 #'
-input_create_circular_table <- function(phase.list) {
-    if (!is(circa_vector, "numeric")) {
+input_create_circular_table <- function(circa_vector) {
+    if (!methods::is(circa_vector, "numeric")) {
         stop("circa_vector must be a numeric vector of phases
          measured in hours.")
     }
@@ -770,7 +770,7 @@ create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
                                   rao.on.large.sets.th = 400,
                                   iter.rao = 999,
                                   force.rao.th = 0.05) {
-    input_create_circular_table()
+    input_create_circular_table(circa_vector)
     circa_radians <- circular::circular(circa_vector * pi / 12)
     circa_summary <- summary(circa_radians)
     circa_var <- circular::var.circular(circa_radians)
@@ -853,16 +853,14 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
                                           kuiper.on.large.sets.th = 400,
                                           iter.kuiper = 999,
                                           force.kuiper.th = 0.05) {
-    input_create_circular_table()
+    input_create_circular_table(circa_vector)
     circa_radians <- circular::circular(circa_vector * pi / 12)
     circa_summary <- summary(circa_radians)
     circa_var <- circular::var.circular(circa_radians)
     circa_ray <- circular::rayleigh.test(
-        circa_radians,
-        mu = circular::circular(circa_summary["Mean"])
+        circa_radians, mu = circular::circular(circa_summary["Mean"])
     )$p.value
-    if (is.na(circa_ray)) {
-        circa_ray <- 1
+    if (is.na(circa_ray)) { circa_ray <- 1
     }
     if (iter.kuiper == 0) {circa_kuiper <- NA
     } else if (isTRUE(circa_ray <= force.kuiper.th)) {
@@ -889,8 +887,7 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
         circa_rao <- NA
     } else {
         circa_rao <- RaoPGroupedRad(
-            circa_radians,
-            m = n_bins, iter = iter.rao
+            circa_radians, m = n_bins, iter = iter.rao
         )}
     circa_table <- table_builder(
         circa_summary, circa_var, circa_kuiper, circa_ray, circa_hr, circa_rao
