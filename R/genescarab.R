@@ -1,3 +1,62 @@
+#' GeneSCARAB: Gene Set Circular Analysis and Rhythms Ascertainment in
+#' Bioprocesses
+#'
+#' GeneSCARAB provides methods for analyzing the cohesion and clustering toward
+#' specific points in the cycle of biological sets (genes, metabolites, ...)
+#' for chronobiology studies following the proposed best practices in circular
+#' statistics.
+#'
+#' ## Main workflow
+#'
+#' The typical workflow is:
+#'
+#' 1. Load element phases as a table and species annotation package.
+#' 2. Construct the phases list for the desired sets or processes.
+#' 3. Compute circular statistics and departure from uniformity for
+#' each set.
+#' 4. For non-uniform sets, compare against global phase distribution.
+#' 5. In the case of multiple conditions, determine differentially timed sets
+#' between conditions.
+#' 6. For multimodal sets, analyze the number of modes and cluster its elements.
+#' 7. Calculate contribution of each element to its set's statistics.
+#' 8. Plot results as circular boxplot, dotplot or histogram.
+#'
+#' ## Main functions
+#'
+#' * [create_gene_list_go()] creates a list of elements associated with each GO
+#' term based on a species annotation package.
+#' * [create_gene_list_kegg()] create a list of elements associated with each
+#' KEGG pathway based on a species annotation package.
+#' * [gene_list_to_phases()] takes a list of elements associated with
+#' specific sets and a complete phase table, and returns a list
+#' consisting of the individual phase tables of each set.
+#' * [complete_circular_table()] calculates the table of statistical measures
+#'  and deviations from circular uniformity of each set.
+#' * [complete_circular_table_grouped()] calculates the table of statistical
+#' measures and deviations from circular uniformity of each set (for
+#' discrete phases).
+#' * [test_against_gen_dist()] compares whether the distributions
+#' of specific sets significantly differ from the overall phase distribution
+#' of the entire dataset
+#' * [test_two_dist()] compares whether the distributions of specific
+#' sets differ significantly between two different conditions or genotypes.
+#' * [gene_contribution_to_set()] measures the contribution of each element
+#' of the set to the mean and rho of the entire set.
+#' * [multimodal_analysis()] determines the most likely number of modes
+#' in the presence of f-fold symmetry (1, 2 or 3),
+#' cluster elements in f clusters and determine the circular statistic
+#' summary for each cluster
+#' * [circular_boxplot()] creates circular boxplot.
+#' * [circular_dotplot()] creates circular dotplot.
+#' * [circular_histogram()] creates circular histogram.
+#'
+#' See the package vignette for a complete tutorial.
+#'
+#' @docType PACKAGE
+#' @name GeneSCARAB
+#' @keywords rhythms, circadian, omics, enrichment, phases
+NULL
+
 #' Critical value calculation for HR test
 #'
 #' A helper function that calculates the critical value for the HR test,
@@ -1781,7 +1840,7 @@ legend_builder_boxplot <- function(quan.table, my_color) {
 #' @param i Track counter
 #' @param my_color Color vector to use
 #'
-#' @returns Trac
+#' @returns Plotted track
 track_box_no_cut <- function(tr.height, quan.table, i, my_color) {
     circlize::circos.track(
         ylim = c(0, 1.5), track.height = tr.height,

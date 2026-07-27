@@ -17,7 +17,7 @@ tracks, reduce this parameter}
 \item{my_color}{Color vector to use}
 }
 \value{
-Trac
+Plotted track
 }
 \description{
 Function to create tracks for boxplots that do not intersect

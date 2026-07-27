@@ -20,7 +20,20 @@ author:
 email: mramos5@us.es
 package: GeneSCARAB
 abstract: >
-  Should be an abstract here
+  Enrichment analyses are the gold standard for interpreting omics data, 
+  allowing for the identification of overrepresented biological processes 
+  or sets of elements (genes, metabolites, etc.).  However, in chronobiology, a 
+  field where the goal is to determine at what time of day each process 
+  occurs, these analyses can be misleading due to assumptions of linearity 
+  and background size that do not hold true in most studies. GeneSCARAB 
+  addresses this by directly analyzing the cohesion and circular uniformity 
+  of the phases of the elements in each set, and expands the range of 
+  possible analyses by offering multimodal analysis, timing comparisons 
+  across various conditions, analysis of the contribution of individual 
+  elements, and a variety of publication-ready plots. In terms of input,
+  GeneSCARAB accepts results from popular phase-determination packages 
+  such as RAIN, CircaCompare, or Metacycle, facilitating its integration 
+  into established pipelines.
 output: BiocStyle::html_document
 toc_float: true
 vignette: >
@@ -56,21 +69,52 @@ determine when a process occurs. Similarly, once the bins are created,
 the total number of elements associated with each is highly variable,
 so the enrichments may be biased as the background changes in each bin. 
 This is common, for example, in circadian transcriptomic studies, 
-in which there exist high and low transcription time, resulting in
+in which there exist high and low transcription time windows, resulting in
 highly unbalanced bins.
 
-GeneSCARAB is designed for analyzing the cohesion and clustering toward
+GeneSCARAB (Gene Set Circular Analysis and Rhythms Ascertainment in 
+Bioprocesses) is designed for analyzing the cohesion and clustering toward
 specific points in the cycle of biological sets (genes, metabolites, ...)
 for chronobiology studies following the proposed best practices in circular 
 statistics. It employs rigorous tests to ensure maximum statistical power
-in the analyses. GeneSCARAB seamlessly integrates into common pipelines for
-this kind of studies, using as input standard outputs from rhythm detection 
-software, and standard Bioconductor annotation packages to adapt the
-analysis to any species of interest.
+in the analyses and functions to accurately plot the results. Also, GeneSCARAB
+seamlessly integrates into common pipelines for this kind of studies, using 
+as input standard outputs from rhythm detection software, and standard 
+Bioconductor annotation packages to adapt the analysis to any species 
+of interest.
 
 ## Installation
 
+GeneSCARAB can be installed as follows:
+
+```{r install, echo=FALSE, message=FALSE, eval=FALSE}
+
+#This package is currently under review for inclusion in Bioconductor.
+
+#You can install the development version from GitHub (ramosgonzmarc/GeneSCARAB)
+if (!requireNamespace("remotes", quietly = TRUE))
+    install.packages("remotes")
+
+remotes::install_github("ramosgonzmarc/GeneSCARAB")
+
+```
+
 ## Quick start
+
+The annotation packages used in this tutorial are available at 
+`r Githubpkg("ramosgonzmarc/GeneSCARAB-annot-packages")` and can be 
+installed as follows once download and decompressed.
+
+```{r annot, echo=FALSE, message=FALSE, eval=FALSE}
+# Windows
+install.packages("./org.Knitens.eg.db/", repos=NULL, type = "source")
+install.packages("./org.Otauri.eg.db/", repos=NULL, type = "source")
+
+# Linux/Debian
+install.packages("./org.Knitens.eg.db/", repos=NULL)
+install.packages("./org.Otauri.eg.db/", repos=NULL)
+
+```
 
 The first step of this tutorial consist on loading the package 
 and the associated data.
@@ -104,11 +148,9 @@ and Rao's spacing (Rao, 1976; Landler et al., 2019a) tests.
 For this, we will use data from the paper "Multiomics integration
 unveils photoperiodic plasticity in the molecular rhythms of 
 marine phytoplankton" ([doi.org/10.1093/plcell/koaf033]
-(https://doi.org/10.1093/plcell/koaf033)). 
-The corresponding annotation package can be download
-from `r Githubpkg("ramosgonzmarc/GeneSCARAB")`.
-We will first generate 
-a subset of GOs using the annotation package.
+(https://doi.org/10.1093/plcell/koaf033)).
+
+We will first generate a subset of GOs using the annotation package.
 
 ```{r gos_sel, echo=FALSE, message=FALSE}
 library(org.Otauri.eg.db)
