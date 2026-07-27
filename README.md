@@ -437,6 +437,16 @@ removal exhibits the highest impact on the mean of the <a
 href="GO:1902494" class="uri">GO:1902494</a> gene set.</figcaption>
 </figure>
 
+## External code
+
+Helper functions HermansRasson2T, HermansRasson2PGroupedRad, RaoTestValue, 
+RaoTestUngroupedRad, RaoPGroupedRad and KuiperPGroupedRad are adapted from the
+corresponding code in 
+https://link.springer.com/article/10.1007/s00265-020-02881-6 and 
+https://link.springer.com/article/10.1186/s40462-019-0160-x and are licensed 
+under a Creative Commons Attribution 4.0 International License, a copy of which 
+can be found [here](http://creativecommons.org/licenses/by/4.0/).
+
 ## References
 
 Debnath, T., & Song, M. (2021). Fast Optimal Circular Clustering and
