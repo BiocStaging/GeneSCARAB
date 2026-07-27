@@ -159,7 +159,7 @@ circular_boxplot(plot_table_7,
 
 <figure>
 <img
-src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/GeneSCARAB/README_files/figure-gfm/sd_boxplot-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_boxplot-1.png"
 alt="Circular boxplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular boxplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -176,7 +176,7 @@ circular_dotplot(plot_phase_list_7,
 
 <figure>
 <img
-src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/GeneSCARAB/README_files/figure-gfm/sd_dotplot-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_dotplot-1.png"
 alt="Circular dotplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular dotplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
