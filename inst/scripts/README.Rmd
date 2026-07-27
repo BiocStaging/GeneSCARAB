@@ -49,7 +49,7 @@ of interest.
 
 GeneSCARAB can be installed as follows:
 
-```{r install, echo=FALSE, message=FALSE, eval=FALSE}
+```{r install, message=FALSE, eval=FALSE}
 
 #This package is currently under review for inclusion in Bioconductor.
 
@@ -67,7 +67,7 @@ The annotation packages used in this tutorial are available at
 `r BiocStyle::Githubpkg("ramosgonzmarc/GeneSCARAB-annot-packages")` and can be 
 installed as follows once download and decompressed.
 
-```{r annot, echo=FALSE, message=FALSE, eval=FALSE}
+```{r annot, message=FALSE, eval=FALSE}
 # Windows
 install.packages("./org.Knitens.eg.db/", repos=NULL, type = "source")
 install.packages("./org.Otauri.eg.db/", repos=NULL, type = "source")
@@ -81,7 +81,7 @@ install.packages("./org.Otauri.eg.db/", repos=NULL)
 The first step of this tutorial consist on loading the package 
 and the associated data.
 
-```{r setup, echo=FALSE, message=FALSE}
+```{r setup, message=FALSE}
 library(GeneSCARAB)
 
 data("circa_table_genescarab")
@@ -114,7 +114,7 @@ marine phytoplankton" ([doi.org/10.1093/plcell/koaf033]
 
 We will first generate a subset of GOs using the annotation package.
 
-```{r gos_sel, echo=FALSE, message=FALSE}
+```{r gos_sel,  message=FALSE}
 library(org.Otauri.eg.db)
 functional_data <- select(org.Otauri.eg.db,
     keys = keys(org.Otauri.eg.db, keytype = "GID"),
@@ -133,7 +133,7 @@ subset_gos <- complete_gos[sample(
 Then we generate a GO terms list with genes per GO term, including 
 ancestors of selected GO terms.
 
-```{r gos_list, echo=FALSE, message=FALSE}
+```{r gos_list, message=FALSE}
 go.list.test <- create_gene_list_go(
     go_vector = subset_gos,
     org.package = "org.Otauri.eg.db",
@@ -145,7 +145,7 @@ We can use this list along with the total phase table to create a
 list of gene phases per GO for the short-day (SD) condition, and 
 clean it by removing GOs with no associated rhythmic genes.
 
-```{r phases_list, echo=FALSE, message=FALSE}
+```{r phases_list, message=FALSE}
 phases.list.sd <- gene_list_to_phases(
     go.list.test,
     total_phases_table_sd
@@ -461,6 +461,19 @@ circular_dotplot(
     color.palette = "Austria", tr.height = 0.15
 )
 ```
+
+
+## External code
+
+Helper functions `HermansRasson2T`, `HermansRasson2PGroupedRad`, 
+`RaoTestValue`, `RaoTestUngroupedRad`, `RaoPGroupedRad` and 
+`KuiperPGroupedRad` are adapted from the corresponding code in 
+https://link.springer.com/article/10.1007/s00265-020-02881-6 and 
+https://link.springer.com/article/10.1186/s40462-019-0160-x and are 
+licensed under a Creative Commons Attribution 4.0 International License, 
+a copy of which can be found 
+[here](https://creativecommons.org/licenses/by/4.0/).
+
 
 ## References
 

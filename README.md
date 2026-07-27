@@ -41,14 +41,51 @@ to adapt the analysis to any species of interest.
 
 GeneSCARAB can be installed as follows:
 
+``` r
+
+#This package is currently under review for inclusion in Bioconductor.
+
+#You can install the development version from GitHub (ramosgonzmarc/GeneSCARAB)
+if (!requireNamespace("remotes", quietly = TRUE))
+    install.packages("remotes")
+
+remotes::install_github("ramosgonzmarc/GeneSCARAB")
+```
+
 ## Quick start
 
 The annotation packages used in this tutorial are available at
 *[GeneSCARAB-annot-packages](https://github.com/ramosgonzmarc/GeneSCARAB-annot-packages)*
 and can be installed as follows once download and decompressed.
 
+``` r
+# Windows
+install.packages("./org.Knitens.eg.db/", repos=NULL, type = "source")
+install.packages("./org.Otauri.eg.db/", repos=NULL, type = "source")
+
+# Linux/Debian
+install.packages("./org.Knitens.eg.db/", repos=NULL)
+install.packages("./org.Otauri.eg.db/", repos=NULL)
+```
+
 The first step of this tutorial consist on loading the package and the
 associated data.
+
+``` r
+library(GeneSCARAB)
+
+data("circa_table_genescarab")
+total_phases_table_ld <- data.frame(names = rownames(
+    circa_table_genescarab
+), phase = as.numeric(
+    circa_table_genescarab[["ld.peak.time.hours"]]
+))
+total_phases_table_sd <- data.frame(names = rownames(
+    circa_table_genescarab
+), phase = as.numeric(
+    circa_table_genescarab[["sd.peak.time.hours"]]
+))
+```
 
 The basic pipeline implemented in GeneSCARAB consists of taking an
 annotation package, a table with the estimated phases for each gene, and
@@ -67,12 +104,46 @@ phytoplankton” (\[doi.org/10.1093/plcell/koaf033\]
 
 We will first generate a subset of GOs using the annotation package.
 
+``` r
+library(org.Otauri.eg.db)
+functional_data <- select(org.Otauri.eg.db,
+    keys = keys(org.Otauri.eg.db, keytype = "GID"),
+    columns = c("GID", "GO")
+)
+complete_gos <- unique(functional_data$GO)
+complete_gos <- complete_gos[!is.na(complete_gos)]
+
+set.seed(2345)
+subset_gos <- complete_gos[sample(
+    1:length(complete_gos), 50,
+    replace = FALSE
+)]
+```
+
 Then we generate a GO terms list with genes per GO term, including
 ancestors of selected GO terms.
+
+``` r
+go.list.test <- create_gene_list_go(
+    go_vector = subset_gos,
+    org.package = "org.Otauri.eg.db",
+    go_column = "GO", id_column = "GID"
+)
+```
 
 We can use this list along with the total phase table to create a list
 of gene phases per GO for the short-day (SD) condition, and clean it by
 removing GOs with no associated rhythmic genes.
+
+``` r
+phases.list.sd <- gene_list_to_phases(
+    go.list.test,
+    total_phases_table_sd
+)
+phases.list.sd.clean <- phases.list.sd[which(
+    sapply(phases.list.sd, nrow) != 0
+)]
+```
 
 Based on this list, the `complete_circular_table` function allows the
 user to calculate a table showing the circular distribution of the
@@ -159,7 +230,7 @@ circular_boxplot(plot_table_7,
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_boxplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_boxplot-1.png"
 alt="Circular boxplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular boxplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -176,7 +247,7 @@ circular_dotplot(plot_phase_list_7,
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_dotplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_dotplot-1.png"
 alt="Circular dotplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular dotplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -190,7 +261,7 @@ circular_histogram(plot_phase_list_7, color.palette = "Tam", nbins = 48)
 
 <figure>
 <img
-src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/GeneSCARAB/README_files/figure-gfm/sd_hist-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_hist-1.png"
 alt="Circular histogram showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular histogram showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -232,7 +303,7 @@ circular_dotplot(
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/multi_dotplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/multi_dotplot-1.png"
 alt="Circular dotplot showing two distinct clusters of genes belonging to a bimodal gene set." />
 <figcaption aria-hidden="true">Circular dotplot showing two distinct
 clusters of genes belonging to a bimodal gene set.</figcaption>
@@ -354,7 +425,7 @@ circular_boxplot(go_circa_plot_diff, color.palette = "Austria")
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/compare_boxplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/compare_boxplot-1.png"
 alt="Circular boxplot showing differences in phase distribution of genes associated to GO:0008026 gene set due to photoperiod of entrainment." />
 <figcaption aria-hidden="true">Circular boxplot showing differences in
 phase distribution of genes associated to <a href="GO:0008026"
@@ -430,22 +501,24 @@ circular_dotplot(
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/ranked_contribution-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/ranked_contribution-1.png"
 alt="Circular dotplot showing the gene whose removal exhibits the highest impact on the mean of the GO:1902494 gene set." />
 <figcaption aria-hidden="true">Circular dotplot showing the gene whose
 removal exhibits the highest impact on the mean of the <a
 href="GO:1902494" class="uri">GO:1902494</a> gene set.</figcaption>
 </figure>
 
+
 ## External code
 
-Helper functions `HermansRasson2T`, `HermansRasson2PGroupedRad`, `RaoTestValue`, 
-`RaoTestUngroupedRad`, `RaoPGroupedRad` and `KuiperPGroupedRad` are adapted 
-from the corresponding code in 
+Helper functions `HermansRasson2T`, `HermansRasson2PGroupedRad`, 
+`RaoTestValue`, `RaoTestUngroupedRad`, `RaoPGroupedRad` and 
+`KuiperPGroupedRad` are adapted from the corresponding code in 
 https://link.springer.com/article/10.1007/s00265-020-02881-6 and 
-https://link.springer.com/article/10.1186/s40462-019-0160-x and are licensed 
-under a Creative Commons Attribution 4.0 International License, a copy of which 
-can be found [here](http://creativecommons.org/licenses/by/4.0/).
+https://link.springer.com/article/10.1186/s40462-019-0160-x and are 
+licensed under a Creative Commons Attribution 4.0 International License, 
+a copy of which can be found 
+[here](https://creativecommons.org/licenses/by/4.0/).
 
 ## References
 
@@ -524,22 +597,21 @@ sessionInfo()
 #> [7] generics_0.1.4       GeneSCARAB_0.99.0   
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] Rdpack_2.6.6           DBI_1.3.0              bitops_1.0-9           rlang_1.2.0            magrittr_2.0.5         clue_0.3-68           
-#>   [7] GetoptLong_1.1.1       otel_0.2.0             matrixStats_1.5.0      e1071_1.7-17           compiler_4.6.1         RSQLite_3.53.2        
-#>  [13] png_0.1-9              vctrs_0.7.3            gsl_2.1-9              shape_1.4.6.1          pkgconfig_2.0.3        crayon_1.5.3          
-#>  [19] fastmap_1.2.0          MetBrewer_0.2.0        XVector_0.53.0         energy_1.7-12          Ckmeans.1d.dp_4.3.5    rmarkdown_2.31        
-#>  [25] bit_4.6.0              xfun_0.58              Rfast_2.1.5.2          cachem_1.1.0           rmio_0.4.0             jsonlite_2.0.0        
-#>  [31] blob_1.3.0             rangen_0.0.1           cluster_2.1.8.2        parallel_4.6.1         R6_2.6.1               RColorBrewer_1.1-3    
-#>  [37] boot_1.3-32            Rcpp_1.1.1-1.1         Seqinfo_1.3.0          iterators_1.0.14       knitr_1.51             base64enc_0.1-6       
-#>  [43] OptCirClust_0.0.4      tidyselect_1.2.1       rnaturalearth_1.2.0    rstudioapi_0.19.0      yaml_2.3.12            doParallel_1.0.17     
-#>  [49] codetools_0.2-20       tibble_3.3.1           KEGGREST_1.53.0        S7_0.2.2               evaluate_1.0.5         AnnotationForge_1.55.0
-#>  [55] sf_1.1-1               units_1.0-1            proxy_0.4-29           RcppParallel_5.1.11-2  ggdist_3.3.3           circlize_0.4.18       
-#>  [61] Biostrings_2.81.3      pillar_1.11.1          circular_0.5-2         BiocManager_1.30.27    KernSmooth_2.23-26     foreach_1.5.2         
-#>  [67] bigassertr_0.2.0       distributional_0.7.1   RCurl_1.98-1.19        ggplot2_4.0.3          scales_1.4.0           BiocStyle_2.41.0      
-#>  [73] class_7.3-23           glue_1.8.1             CircMLE_0.3.0          tools_4.6.1            Directional_7.6        Rnanoflann_0.0.3      
-#>  [79] mvtnorm_1.4-1          rgl_1.3.36             XML_3.99-0.23          cowplot_1.2.0          grid_4.6.1             plotrix_3.8-14        
-#>  [85] Rfast2_0.1.5.6         rbibutils_2.4.1        colorspace_2.1-2       flock_0.7              cli_3.6.6              zigg_0.0.2            
-#>  [91] bigparallelr_0.3.2     ComplexHeatmap_2.29.0  dplyr_1.2.1            gtable_0.3.6           digest_0.6.39          classInt_0.4-11       
-#>  [97] rjson_0.2.23           htmlwidgets_1.6.4      farver_2.1.2           memoise_2.0.1          htmltools_0.5.9        lifecycle_1.0.5       
-#> [103] httr_1.4.8             GlobalOptions_0.1.4    GO.db_3.23.1           bigstatsr_1.6.2        bit64_4.8.2
+#>   [1] Rdpack_2.6.6          DBI_1.3.0             rlang_1.2.0           magrittr_2.0.5        clue_0.3-68           GetoptLong_1.1.1     
+#>   [7] otel_0.2.0            matrixStats_1.5.0     e1071_1.7-17          compiler_4.6.1        RSQLite_3.53.2        png_0.1-9            
+#>  [13] vctrs_0.7.3           gsl_2.1-9             pkgconfig_2.0.3       shape_1.4.6.1         crayon_1.5.3          fastmap_1.2.0        
+#>  [19] MetBrewer_0.2.0       XVector_0.53.0        energy_1.7-12         Ckmeans.1d.dp_4.3.5   rmarkdown_2.31        bit_4.6.0            
+#>  [25] xfun_0.58             Rfast_2.1.5.2         cachem_1.1.0          rmio_0.4.0            jsonlite_2.0.0        blob_1.3.0           
+#>  [31] rangen_0.0.1          cluster_2.1.8.2       parallel_4.6.1        R6_2.6.1              RColorBrewer_1.1-3    boot_1.3-32          
+#>  [37] Rcpp_1.1.1-1.1        Seqinfo_1.3.0         iterators_1.0.14      knitr_1.51            base64enc_0.1-6       OptCirClust_0.0.4    
+#>  [43] tidyselect_1.2.1      rnaturalearth_1.2.0   rstudioapi_0.19.0     yaml_2.3.12           doParallel_1.0.17     codetools_0.2-20     
+#>  [49] tibble_3.3.1          KEGGREST_1.53.0       S7_0.2.2              evaluate_1.0.5        sf_1.1-1              units_1.0-1          
+#>  [55] proxy_0.4-29          RcppParallel_5.1.11-2 circlize_0.4.18       Biostrings_2.81.3     pillar_1.11.1         circular_0.5-2       
+#>  [61] BiocManager_1.30.27   KernSmooth_2.23-26    foreach_1.5.2         bigassertr_0.2.0      ggplot2_4.0.3         scales_1.4.0         
+#>  [67] BiocStyle_2.41.0      class_7.3-23          glue_1.8.1            CircMLE_0.3.0         tools_4.6.1           Directional_7.6      
+#>  [73] Rnanoflann_0.0.3      mvtnorm_1.4-1         rgl_1.3.36            cowplot_1.2.0         grid_4.6.1            plotrix_3.8-14       
+#>  [79] Rfast2_0.1.5.6        rbibutils_2.4.1       colorspace_2.1-2      flock_0.7             cli_3.6.6             zigg_0.0.2           
+#>  [85] bigparallelr_0.3.2    ComplexHeatmap_2.29.0 dplyr_1.2.1           gtable_0.3.6          digest_0.6.39         classInt_0.4-11      
+#>  [91] rjson_0.2.23          htmlwidgets_1.6.4     farver_2.1.2          memoise_2.0.1         htmltools_0.5.9       lifecycle_1.0.5      
+#>  [97] httr_1.4.8            GlobalOptions_0.1.4   GO.db_3.23.1          bigstatsr_1.6.2       bit64_4.8.2
 ```
