@@ -261,7 +261,7 @@ circular_histogram(plot_phase_list_7, color.palette = "Tam", nbins = 48)
 
 <figure>
 <img
-src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_hist-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_hist-1.png"
 alt="Circular histogram showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular histogram showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
