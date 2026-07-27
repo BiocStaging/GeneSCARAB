@@ -99,8 +99,7 @@ Rayleigh (Rayleigh, 1880), Kuiper (Kuiper, 1960), Hermans-Rasson
 
 For this, we will use data from the paper “Multiomics integration
 unveils photoperiodic plasticity in the molecular rhythms of marine
-phytoplankton” (\[doi.org/10.1093/plcell/koaf033\]
-(<https://doi.org/10.1093/plcell/koaf033>)).
+phytoplankton” https://doi.org/10.1093/plcell/koaf033.
 
 We will first generate a subset of GOs using the annotation package.
 

@@ -109,8 +109,7 @@ and Rao's spacing (Rao, 1976; Landler et al., 2019a) tests.
 
 For this, we will use data from the paper "Multiomics integration
 unveils photoperiodic plasticity in the molecular rhythms of 
-marine phytoplankton" ([doi.org/10.1093/plcell/koaf033]
-(https://doi.org/10.1093/plcell/koaf033)).
+marine phytoplankton" doi.org/10.1093/plcell/koaf033.
 
 We will first generate a subset of GOs using the annotation package.
 
