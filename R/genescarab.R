@@ -51,7 +51,6 @@
 #' * [circular_histogram()] creates circular histogram.
 #'
 #' See the package vignette for a complete tutorial.
-#'
 #' @name GeneSCARAB
 #' @keywords rhythms, circadian, omics, enrichment, phases
 "_PACKAGE"
