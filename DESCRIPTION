@@ -1,10 +1,14 @@
 Package: GeneSCARAB
 Title: Gene Set Circular Analysis for Rhythms Ascertainment in Bioprocesses
 Version: 0.99.0
-Authors@R: 
-    person("Marcos", "Ramos-González", email = "mramos5@us.es", role = c("aut", "cre"), comment=c(ORCID="0000-0001-9130-586X"))
+Authors@R: c(
+    person("Marcos", "Ramos-González", email = "mramos5@us.es", role = c("aut", "cre"), comment=c(ORCID="0000-0001-9130-586X")),
+    person("Emma", "Serrano-Pérez", email = "enma.serrano@ibvf.csic.es", role = "ctb", comment=c(ORCID="0000-0001-9350-7342")),
+    person("Víctor", "Ramos-González", email = "vramos1@us.es", role = "ctb", comment=c(ORCID="0000-0002-5452-9394")),
+    person("Mercedes", "García-González", email = "mggonza@us.es", role = "ctb", comment=c(ORCID="0000-0003-0375-8493")),
+    person("Francisco J.", "Romero-Campero", email = "fran@us.es", role = "ctb", comment=c(ORCID="0000-0001-9834-030X")))
 Description: GeneSCARAB includes a range of features designed to enable a robust and comprehensive analysis of the circular distributions of biomolecules (genes, proteins, metabolites, ...) associated with bioprocesses in any species. It is specifically designed for circadian omics studies and facilitates data organization, statistical analysis, and the visualization of results. It works with the output of standard rhythm detection software, such as CircaCompare, MetaCycle or RAIN.
-License: MIT + file LICENSE
+License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports: 

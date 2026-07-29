@@ -229,7 +229,7 @@ circular_boxplot(plot_table_7,
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_boxplot-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/sd_boxplot-1.png"
 alt="Circular boxplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular boxplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -246,7 +246,7 @@ circular_dotplot(plot_phase_list_7,
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_dotplot-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/sd_dotplot-1.png"
 alt="Circular dotplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular dotplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -260,7 +260,7 @@ circular_histogram(plot_phase_list_7, color.palette = "Tam", nbins = 48)
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/sd_hist-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/sd_hist-1.png"
 alt="Circular histogram showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular histogram showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -302,7 +302,7 @@ circular_dotplot(
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/multi_dotplot-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/multi_dotplot-1.png"
 alt="Circular dotplot showing two distinct clusters of genes belonging to a bimodal gene set." />
 <figcaption aria-hidden="true">Circular dotplot showing two distinct
 clusters of genes belonging to a bimodal gene set.</figcaption>
@@ -424,7 +424,7 @@ circular_boxplot(go_circa_plot_diff, color.palette = "Austria")
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/compare_boxplot-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/compare_boxplot-1.png"
 alt="Circular boxplot showing differences in phase distribution of genes associated to GO:0008026 gene set due to photoperiod of entrainment." />
 <figcaption aria-hidden="true">Circular boxplot showing differences in
 phase distribution of genes associated to <a href="GO:0008026"
@@ -500,7 +500,7 @@ circular_dotplot(
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/README_files/figure-gfm/ranked_contribution-1.png"
+src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/ranked_contribution-1.png"
 alt="Circular dotplot showing the gene whose removal exhibits the highest impact on the mean of the GO:1902494 gene set." />
 <figcaption aria-hidden="true">Circular dotplot showing the gene whose
 removal exhibits the highest impact on the mean of the <a

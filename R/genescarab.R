@@ -52,10 +52,9 @@
 #'
 #' See the package vignette for a complete tutorial.
 #'
-#' @docType PACKAGE
 #' @name GeneSCARAB
 #' @keywords rhythms, circadian, omics, enrichment, phases
-NULL
+"_PACKAGE"
 
 #' Critical value calculation for HR test
 #'

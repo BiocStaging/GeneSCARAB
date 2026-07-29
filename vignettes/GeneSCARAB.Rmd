@@ -33,9 +33,12 @@ abstract: >
   elements, and a variety of publication-ready plots. In terms of input,
   GeneSCARAB accepts results from popular phase-determination packages 
   such as RAIN, CircaCompare, or Metacycle, facilitating its integration 
-  into established pipelines.
-output: BiocStyle::html_document
-toc_float: true
+  into established pipelines
+output: 
+  BiocStyle::html_document:
+  toc: true
+  toc_depth: 2
+  toc_float: true
 vignette: >
     %\VignetteIndexEntry{GeneSCARAB}
     %\VignetteEngine{knitr::rmarkdown}
