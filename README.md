@@ -59,13 +59,9 @@ The annotation packages used in this tutorial are available at
 and can be installed as follows once download and decompressed.
 
 ``` r
-# Windows
 install.packages("./org.Knitens.eg.db/", repos=NULL, type = "source")
 install.packages("./org.Otauri.eg.db/", repos=NULL, type = "source")
 
-# Linux/Debian
-install.packages("./org.Knitens.eg.db/", repos=NULL)
-install.packages("./org.Otauri.eg.db/", repos=NULL)
 ```
 
 The first step of this tutorial consist on loading the package and the
@@ -100,6 +96,14 @@ Rayleigh (Rayleigh, 1880), Kuiper (Kuiper, 1960), Hermans-Rasson
 For this, we will use data from the paper “Multiomics integration
 unveils photoperiodic plasticity in the molecular rhythms of marine
 phytoplankton” https://doi.org/10.1093/plcell/koaf033.
+
+To get general information about the package, run:
+
+``` r
+
+?`GeneSCARAB-package`
+
+```
 
 We will first generate a subset of GOs using the annotation package.
 
