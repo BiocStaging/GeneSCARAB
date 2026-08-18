@@ -32,6 +32,7 @@ between conditions.
 
 \subsection{Main functions}{
 \itemize{
+\item \code{\link[=load_example_annot]{load_example_annot()}} loads example annotation data.
 \item \code{\link[=create_gene_list_go]{create_gene_list_go()}} creates a list of elements associated with each GO
 term based on a species annotation package.
 \item \code{\link[=create_gene_list_kegg]{create_gene_list_kegg()}} create a list of elements associated with each

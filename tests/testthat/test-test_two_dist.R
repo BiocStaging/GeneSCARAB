@@ -2,9 +2,7 @@ library(testthat)
 library(GeneSCARAB)
 
 test_that("test_two_dist returns a data.frame with two columns", {
-    library(org.Otauri.eg.db)
-    library(GeneSCARAB)
-
+    org_Otaurireduced_eg_db <- load_example_annot()
     data("circa_table_genescarab")
     total_phases_table_sd <- data.frame(
         names = rownames(circa_table_genescarab),
@@ -18,8 +16,8 @@ test_that("test_two_dist returns a data.frame with two columns", {
             circa_table_genescarab[["ld.peak.time.hours"]]
         )
     )
-    functional_data <- select(org.Otauri.eg.db,
-        keys = keys(org.Otauri.eg.db, keytype = "GID"),
+    functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+        keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
         columns = c("GID", "GO")
     )
     complete_gos <- unique(functional_data$GO)
@@ -31,7 +29,7 @@ test_that("test_two_dist returns a data.frame with two columns", {
     )]
     go.list.test <- create_gene_list_go(
         go_vector = subset_gos,
-        org.package = "org.Otauri.eg.db",
+        org.package = org_Otaurireduced_eg_db,
         go_column = "GO", id_column = "GID"
     )
     phases.list.sd <- gene_list_to_phases(
@@ -40,12 +38,14 @@ test_that("test_two_dist returns a data.frame with two columns", {
     phases.list.sd.clean <- phases.list.sd[which(
         sapply(phases.list.sd, nrow) != 0
     )][seq_len(3)]
+    
     phases.list.ld <- gene_list_to_phases(
-        go.list.test, total_phases_table_sd
+        go.list.test, total_phases_table_ld
     )
-    phases.list.ld.clean <- phases.list.sd[which(
-        sapply(phases.list.sd, nrow) != 0
+    phases.list.ld.clean <- phases.list.ld[which(
+        sapply(phases.list.ld, nrow) != 0
     )][names(phases.list.sd.clean)]
+    
     diff_distributed_gos <- test_two_dist(
         phases.list.ld.clean, phases.list.sd.clean
     )

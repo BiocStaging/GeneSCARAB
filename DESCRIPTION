@@ -24,8 +24,7 @@ Imports:
     MetBrewer,
     OptCirClust,
     AnnotationDbi,
-    methods,
-    utils
+    methods
 Depends: 
     R (>= 4.6.0)
 LazyData: false

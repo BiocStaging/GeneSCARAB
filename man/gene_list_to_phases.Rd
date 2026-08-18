@@ -24,7 +24,7 @@ and a general phase table, and returns a list consisting
 of the phase tables specific to each set.
 }
 \examples{
-library(org.Otauri.eg.db)
+org_Otaurireduced_eg_db <- load_example_annot()
 data("circa_table_genescarab")
 
 total_phases_table_sd <- data.frame(
@@ -35,7 +35,7 @@ total_phases_table_sd <- data.frame(
 )
 go.list.test <- create_gene_list_go(
     go_vector = "GO:0005515",
-    org.package = "org.Otauri.eg.db", go_column = "GO",
+    org.package = org_Otaurireduced_eg_db, go_column = "GO",
     id_column = "GID"
 )
 gene_list_to_phases(go.list.test, total_phases_table_sd)

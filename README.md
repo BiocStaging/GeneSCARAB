@@ -41,47 +41,11 @@ to adapt the analysis to any species of interest.
 
 GeneSCARAB can be installed as follows:
 
-``` r
-
-#This package is currently under review for inclusion in Bioconductor.
-
-#You can install the development version from GitHub (ramosgonzmarc/GeneSCARAB)
-if (!requireNamespace("remotes", quietly = TRUE))
-    install.packages("remotes")
-
-remotes::install_github("ramosgonzmarc/GeneSCARAB")
-```
-
 ## Quick start
 
-The annotation packages used in this tutorial are available at
-*[GeneSCARAB-annot-packages](https://github.com/ramosgonzmarc/GeneSCARAB-annot-packages)*
-and can be installed as follows once download and decompressed.
-
-``` r
-install.packages("./org.Knitens.eg.db/", repos=NULL, type = "source")
-install.packages("./org.Otauri.eg.db/", repos=NULL, type = "source")
-
-```
-
 The first step of this tutorial consist on loading the package and the
-associated data.
-
-``` r
-library(GeneSCARAB)
-
-data("circa_table_genescarab")
-total_phases_table_ld <- data.frame(names = rownames(
-    circa_table_genescarab
-), phase = as.numeric(
-    circa_table_genescarab[["ld.peak.time.hours"]]
-))
-total_phases_table_sd <- data.frame(names = rownames(
-    circa_table_genescarab
-), phase = as.numeric(
-    circa_table_genescarab[["sd.peak.time.hours"]]
-))
-```
+associated data. The annotation package used in this tutorial can be
+loaded using the `load_example_annot` function.
 
 The basic pipeline implemented in GeneSCARAB consists of taking an
 annotation package, a table with the estimated phases for each gene, and
@@ -95,58 +59,17 @@ Rayleigh (Rayleigh, 1880), Kuiper (Kuiper, 1960), Hermans-Rasson
 
 For this, we will use data from the paper “Multiomics integration
 unveils photoperiodic plasticity in the molecular rhythms of marine
-phytoplankton” https://doi.org/10.1093/plcell/koaf033.
-
-To get general information about the package, run:
-
-``` r
-
-?`GeneSCARAB-package`
-
-```
+phytoplankton” (\[doi.org/10.1093/plcell/koaf033\]
+(<https://doi.org/10.1093/plcell/koaf033>)).
 
 We will first generate a subset of GOs using the annotation package.
-
-``` r
-library(org.Otauri.eg.db)
-functional_data <- select(org.Otauri.eg.db,
-    keys = keys(org.Otauri.eg.db, keytype = "GID"),
-    columns = c("GID", "GO")
-)
-complete_gos <- unique(functional_data$GO)
-complete_gos <- complete_gos[!is.na(complete_gos)]
-
-set.seed(2345)
-subset_gos <- complete_gos[sample(
-    1:length(complete_gos), 50,
-    replace = FALSE
-)]
-```
 
 Then we generate a GO terms list with genes per GO term, including
 ancestors of selected GO terms.
 
-``` r
-go.list.test <- create_gene_list_go(
-    go_vector = subset_gos,
-    org.package = "org.Otauri.eg.db",
-    go_column = "GO", id_column = "GID"
-)
-```
-
 We can use this list along with the total phase table to create a list
 of gene phases per GO for the short-day (SD) condition, and clean it by
 removing GOs with no associated rhythmic genes.
-
-``` r
-phases.list.sd <- gene_list_to_phases(
-    go.list.test,
-    total_phases_table_sd
-)
-phases.list.sd.clean <- phases.list.sd[which(
-    sapply(phases.list.sd, nrow) != 0
-)]
-```
 
 Based on this list, the `complete_circular_table` function allows the
 user to calculate a table showing the circular distribution of the
@@ -212,18 +135,18 @@ sd_rhythmic <- rownames(go.circa.table.sd)[
 ]
 sd_rhythmic <- unique(sd_rhythmic[!is.na(sd_rhythmic)])
 length(sd_rhythmic)
-#> [1] 133
+#> [1] 182
 ```
 
 We can plot these results with 3 different visualizations. Let’s plot a
 sample of 8 biological processes. First a circular boxplot. This
 function exports a png containing the plot. MetBrewer’s palettes are
-used for colloring.
+used for coloring.
 
 ``` r
 ex_plots <- c(
-    "GO:0016833", "GO:0015698", "GO:0016790",
-    "GO:0055085", "GO:0019205", "GO:0004553", "GO:0008169"
+    "GO:0016684", "GO:0006220", "GO:0012507",
+    "GO:0042592", "GO:0016780", "GO:0012507", "GO:0008169"
 )
 plot_table_7 <- go.circa.table.sd[ex_plots, ]
 circular_boxplot(plot_table_7,
@@ -233,7 +156,7 @@ circular_boxplot(plot_table_7,
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/sd_boxplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_boxplot-1.png"
 alt="Circular boxplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular boxplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -250,7 +173,7 @@ circular_dotplot(plot_phase_list_7,
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/sd_dotplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_dotplot-1.png"
 alt="Circular dotplot showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular dotplot showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -264,7 +187,7 @@ circular_histogram(plot_phase_list_7, color.palette = "Tam", nbins = 48)
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/sd_hist-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_hist-1.png"
 alt="Circular histogram showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular histogram showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -306,7 +229,7 @@ circular_dotplot(
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/multi_dotplot-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/multi_dotplot-1.png"
 alt="Circular dotplot showing two distinct clusters of genes belonging to a bimodal gene set." />
 <figcaption aria-hidden="true">Circular dotplot showing two distinct
 clusters of genes belonging to a bimodal gene set.</figcaption>
@@ -394,7 +317,7 @@ ld_rhythmic <- rownames(go.circa.table.ld)[
 ]
 ld_rhythmic <- unique(ld_rhythmic[!is.na(ld_rhythmic)])
 length(ld_rhythmic)
-#> [1] 137
+#> [1] 191
 ```
 
 After this, we compare gene phase distributions under both conditions
@@ -411,15 +334,15 @@ diff_distributed_gos <- test_two_dist(
     phases.list.ld.clean[rhythmic_gos], phases.list.sd.clean[rhythmic_gos]
 )
 sum(diff_distributed_gos$p_value_adj < 0.05)
-#> [1] 82
+#> [1] 133
 ```
 
 And we can plot one of these.
 
 ``` r
 go_circa_plot_diff <- rbind(
-    go.circa.table.ld["GO:0008026", ],
-    go.circa.table.sd["GO:0008026", ]
+    go.circa.table.ld["GO:0006334", ],
+    go.circa.table.sd["GO:0006334", ]
 )
 rownames(go_circa_plot_diff) <- c("LD", "SD")
 
@@ -428,11 +351,11 @@ circular_boxplot(go_circa_plot_diff, color.palette = "Austria")
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/compare_boxplot-1.png"
-alt="Circular boxplot showing differences in phase distribution of genes associated to GO:0008026 gene set due to photoperiod of entrainment." />
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/compare_boxplot-1.png"
+alt="Circular boxplot showing differences in phase distribution of genes associated to GO:0006334 gene set due to photoperiod of entrainment." />
 <figcaption aria-hidden="true">Circular boxplot showing differences in
-phase distribution of genes associated to <a href="GO:0008026"
-class="uri">GO:0008026</a> gene set due to photoperiod of
+phase distribution of genes associated to <a href="GO:0006334"
+class="uri">GO:0006334</a> gene set due to photoperiod of
 entrainment.</figcaption>
 </figure>
 
@@ -452,7 +375,7 @@ not_experimentally_distributed_gos <- test_against_gen_dist(
     phases.list.ld.clean[rhythmic_gos], total_phases_table_ld
 )
 sum(not_experimentally_distributed_gos$gen_dist_p_value_adj < 0.05)
-#> [1] 53
+#> [1] 84
 ```
 
 ## Contribution of each individual element to the complete phase distribution of the set
@@ -477,8 +400,8 @@ distribution.
 ``` r
 ranked_mean <- sapply(gene_contributions, function(x) rownames(x)[1])
 ranked_mean
-#>      GO:1902494      GO:1905368      GO:1905369      GO:0004497      GO:0016705      GO:0032451 
-#> "ostta09g01450" "ostta05g02530" "ostta05g02530" "ostta15g02680" "ostta18g01610" "ostta11g01340"
+#>      GO:0016773      GO:0016614      GO:0015291      GO:0015297      GO:0008169      GO:0016788 
+#> "ostta02g03550" "ostta05g01550" "ostta06g04580" "ostta05g00850" "ostta15g02385" "ostta08g01210"
 
 ranked_rho <- sapply(gene_contributions, function(x) {
     names(
@@ -486,17 +409,17 @@ ranked_rho <- sapply(gene_contributions, function(x) {
     )
 })
 ranked_rho
-#>      GO:1902494      GO:1905368      GO:1905369      GO:0004497      GO:0016705      GO:0032451 
-#> "ostta01g03170" "ostta13g02870" "ostta13g02870" "ostta04g03310" "ostta03g00650" "ostta11g01340"
+#>      GO:0016773      GO:0016614      GO:0015291      GO:0015297      GO:0008169      GO:0016788 
+#> "ostta11g02240" "ostta12g01630" "ostta03g00190" "ostta08g04100" "ostta14g01980" "ostta03g01040"
 
 gene_of_interest_mean <- subset(
-    phases.list.ld.clean$`GO:1902494`,
+    phases.list.ld.clean$`GO:0016773`,
     names == ranked_mean[1]
 )
 circular_dotplot(
     phases.list = list(
         ranked_gene = gene_of_interest_mean,
-        complete_go = phases.list.ld.clean$`GO:1902494`
+        complete_go = phases.list.ld.clean$`GO:0016773`
     ),
     color.palette = "Austria", tr.height = 0.15
 )
@@ -504,23 +427,22 @@ circular_dotplot(
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/blob/main/man/figures/ranked_contribution-1.png"
-alt="Circular dotplot showing the gene whose removal exhibits the highest impact on the mean of the GO:1902494 gene set." />
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/ranked_contribution-1.png"
+alt="Circular dotplot showing the gene whose removal exhibits the highest impact on the mean of the gene set." />
 <figcaption aria-hidden="true">Circular dotplot showing the gene whose
-removal exhibits the highest impact on the mean of the <a
-href="GO:1902494" class="uri">GO:1902494</a> gene set.</figcaption>
+removal exhibits the highest impact on the mean of the gene
+set.</figcaption>
 </figure>
-
 
 ## External code
 
-Helper functions `HermansRasson2T`, `HermansRasson2PGroupedRad`, 
-`RaoTestValue`, `RaoTestUngroupedRad`, `RaoPGroupedRad` and 
-`KuiperPGroupedRad` are adapted from the corresponding code in 
-https://link.springer.com/article/10.1007/s00265-020-02881-6 and 
-https://link.springer.com/article/10.1186/s40462-019-0160-x and are 
-licensed under a Creative Commons Attribution 4.0 International License, 
-a copy of which can be found 
+Helper functions `HermansRasson2T`, `HermansRasson2PGroupedRad`,
+`RaoTestValue`, `RaoTestUngroupedRad`, `RaoPGroupedRad` and
+`KuiperPGroupedRad` are adapted from the corresponding code in
+<https://link.springer.com/article/10.1007/s00265-020-02881-6> and
+<https://link.springer.com/article/10.1186/s40462-019-0160-x> and are
+licensed under a Creative Commons Attribution 4.0 International License,
+a copy of which can be found
 [here](https://creativecommons.org/licenses/by/4.0/).
 
 ## References
@@ -585,9 +507,9 @@ sessionInfo()
 #> LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.11.0  LAPACK version 3.11.0
 #> 
 #> locale:
-#>  [1] LC_CTYPE=es_ES.UTF-8       LC_NUMERIC=C               LC_TIME=es_ES.UTF-8        LC_COLLATE=es_ES.UTF-8     LC_MONETARY=es_ES.UTF-8   
-#>  [6] LC_MESSAGES=es_ES.UTF-8    LC_PAPER=es_ES.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C            
-#> [11] LC_MEASUREMENT=es_ES.UTF-8 LC_IDENTIFICATION=C       
+#>  [1] LC_CTYPE=es_ES.UTF-8       LC_NUMERIC=C               LC_TIME=es_ES.UTF-8        LC_COLLATE=es_ES.UTF-8    
+#>  [5] LC_MONETARY=es_ES.UTF-8    LC_MESSAGES=es_ES.UTF-8    LC_PAPER=es_ES.UTF-8       LC_NAME=C                 
+#>  [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=es_ES.UTF-8 LC_IDENTIFICATION=C       
 #> 
 #> time zone: Europe/Madrid
 #> tzcode source: system (glibc)
@@ -596,25 +518,29 @@ sessionInfo()
 #> [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] org.Otauri.eg.db_0.1 AnnotationDbi_1.75.0 IRanges_2.47.2       S4Vectors_0.51.3     Biobase_2.73.1       BiocGenerics_0.59.7 
-#> [7] generics_0.1.4       GeneSCARAB_0.99.0   
+#> [1] AnnotationDbi_1.75.0 IRanges_2.47.2       S4Vectors_0.51.3     Biobase_2.73.1       BiocGenerics_0.59.7  generics_0.1.4      
+#> [7] GeneSCARAB_0.99.0   
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] Rdpack_2.6.6          DBI_1.3.0             rlang_1.2.0           magrittr_2.0.5        clue_0.3-68           GetoptLong_1.1.1     
-#>   [7] otel_0.2.0            matrixStats_1.5.0     e1071_1.7-17          compiler_4.6.1        RSQLite_3.53.2        png_0.1-9            
-#>  [13] vctrs_0.7.3           gsl_2.1-9             pkgconfig_2.0.3       shape_1.4.6.1         crayon_1.5.3          fastmap_1.2.0        
-#>  [19] MetBrewer_0.2.0       XVector_0.53.0        energy_1.7-12         Ckmeans.1d.dp_4.3.5   rmarkdown_2.31        bit_4.6.0            
-#>  [25] xfun_0.58             Rfast_2.1.5.2         cachem_1.1.0          rmio_0.4.0            jsonlite_2.0.0        blob_1.3.0           
-#>  [31] rangen_0.0.1          cluster_2.1.8.2       parallel_4.6.1        R6_2.6.1              RColorBrewer_1.1-3    boot_1.3-32          
-#>  [37] Rcpp_1.1.1-1.1        Seqinfo_1.3.0         iterators_1.0.14      knitr_1.51            base64enc_0.1-6       OptCirClust_0.0.4    
-#>  [43] tidyselect_1.2.1      rnaturalearth_1.2.0   rstudioapi_0.19.0     yaml_2.3.12           doParallel_1.0.17     codetools_0.2-20     
-#>  [49] tibble_3.3.1          KEGGREST_1.53.0       S7_0.2.2              evaluate_1.0.5        sf_1.1-1              units_1.0-1          
-#>  [55] proxy_0.4-29          RcppParallel_5.1.11-2 circlize_0.4.18       Biostrings_2.81.3     pillar_1.11.1         circular_0.5-2       
-#>  [61] BiocManager_1.30.27   KernSmooth_2.23-26    foreach_1.5.2         bigassertr_0.2.0      ggplot2_4.0.3         scales_1.4.0         
-#>  [67] BiocStyle_2.41.0      class_7.3-23          glue_1.8.1            CircMLE_0.3.0         tools_4.6.1           Directional_7.6      
-#>  [73] Rnanoflann_0.0.3      mvtnorm_1.4-1         rgl_1.3.36            cowplot_1.2.0         grid_4.6.1            plotrix_3.8-14       
-#>  [79] Rfast2_0.1.5.6        rbibutils_2.4.1       colorspace_2.1-2      flock_0.7             cli_3.6.6             zigg_0.0.2           
-#>  [85] bigparallelr_0.3.2    ComplexHeatmap_2.29.0 dplyr_1.2.1           gtable_0.3.6          digest_0.6.39         classInt_0.4-11      
-#>  [91] rjson_0.2.23          htmlwidgets_1.6.4     farver_2.1.2          memoise_2.0.1         htmltools_0.5.9       lifecycle_1.0.5      
-#>  [97] httr_1.4.8            GlobalOptions_0.1.4   GO.db_3.23.1          bigstatsr_1.6.2       bit64_4.8.2
+#>   [1] Rdpack_2.6.6          DBI_1.3.0             rlang_1.2.0           magrittr_2.0.5        clue_0.3-68          
+#>   [6] GetoptLong_1.1.1      otel_0.2.0            matrixStats_1.5.0     e1071_1.7-17          compiler_4.6.1       
+#>  [11] RSQLite_3.53.2        png_0.1-9             vctrs_0.7.3           gsl_2.1-9             pkgconfig_2.0.3      
+#>  [16] shape_1.4.6.1         crayon_1.5.3          fastmap_1.2.0         MetBrewer_0.2.0       XVector_0.53.0       
+#>  [21] energy_1.7-12         Ckmeans.1d.dp_4.3.5   rmarkdown_2.31        bit_4.6.0             xfun_0.58            
+#>  [26] Rfast_2.1.5.2         cachem_1.1.0          rmio_0.4.0            jsonlite_2.0.0        blob_1.3.0           
+#>  [31] rangen_0.0.1          cluster_2.1.8.2       parallel_4.6.1        R6_2.6.1              RColorBrewer_1.1-3   
+#>  [36] boot_1.3-32           Rcpp_1.1.1-1.1        Seqinfo_1.3.0         iterators_1.0.14      knitr_1.51           
+#>  [41] base64enc_0.1-6       OptCirClust_0.0.4     tidyselect_1.2.1      rnaturalearth_1.2.0   rstudioapi_0.19.0    
+#>  [46] yaml_2.3.12           doParallel_1.0.17     codetools_0.2-20      curl_7.1.0            tibble_3.3.1         
+#>  [51] KEGGREST_1.53.0       S7_0.2.2              evaluate_1.0.5        sf_1.1-1              units_1.0-1          
+#>  [56] proxy_0.4-29          RcppParallel_5.1.11-2 circlize_0.4.18       Biostrings_2.81.3     pillar_1.11.1        
+#>  [61] circular_0.5-2        BiocManager_1.30.27   KernSmooth_2.23-26    foreach_1.5.2         bigassertr_0.2.0     
+#>  [66] ggplot2_4.0.3         scales_1.4.0          BiocStyle_2.41.0      class_7.3-23          glue_1.8.1           
+#>  [71] CircMLE_0.3.0         tools_4.6.1           Directional_7.6       Rnanoflann_0.0.3      mvtnorm_1.4-1        
+#>  [76] rgl_1.3.36            cowplot_1.2.0         grid_4.6.1            plotrix_3.8-14        Rfast2_0.1.5.6       
+#>  [81] rbibutils_2.4.1       colorspace_2.1-2      flock_0.7             cli_3.6.6             zigg_0.0.2           
+#>  [86] bigparallelr_0.3.2    ComplexHeatmap_2.29.0 dplyr_1.2.1           gtable_0.3.6          digest_0.6.39        
+#>  [91] classInt_0.4-11       rjson_0.2.23          htmlwidgets_1.6.4     farver_2.1.2          memoise_2.0.1        
+#>  [96] htmltools_0.5.9       lifecycle_1.0.5       httr_1.4.8            GlobalOptions_0.1.4   GO.db_3.23.1         
+#> [101] bigstatsr_1.6.2       bit64_4.8.2
 ```

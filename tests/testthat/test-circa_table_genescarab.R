@@ -11,5 +11,3 @@ test_that("example dataset has expected structure", {
     expect_type(circa_table_genescarab$sd.peak.time.hours, "double")
     expect_type(circa_table_genescarab$ld.peak.time.hours, "double")
 })
-
-class(circa_table_genescarab$ld.peak.time.hours)

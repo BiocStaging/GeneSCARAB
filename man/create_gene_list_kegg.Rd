@@ -18,7 +18,8 @@ create_gene_list_kegg(
 along with their pathways ancestors. "all" takes the
 complete set from the annotation package}
 
-\item{org.package}{Species annotation package}
+\item{org.package}{OrgDb object from species annotation package
+(*.db)}
 
 \item{ko_column}{KO column name in the annotation package}
 
@@ -42,9 +43,9 @@ derived from KEGGREST, KAAS or similar tools. It also allows
 filtering by species group.
 }
 \examples{
-library("org.Knitens.eg.db")
+org_Otaurireduced_eg_db <- load_example_annot()
 create_gene_list_kegg(
-    ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+    ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
     ko_column = "KO", id_column = "GID", ko_prefix = "map",
     species = "plants"
 )

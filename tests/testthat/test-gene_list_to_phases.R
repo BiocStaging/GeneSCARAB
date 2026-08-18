@@ -2,7 +2,7 @@ library(testthat)
 library(GeneSCARAB)
 
 test_that("gene_list_to_phases returns a list", {
-    library(org.Otauri.eg.db)
+    org_Otaurireduced_eg_db <- load_example_annot()
     data("circa_table_genescarab")
 
     total_phases_table_sd <- data.frame(
@@ -13,7 +13,7 @@ test_that("gene_list_to_phases returns a list", {
     )
     go.list.test <- create_gene_list_go(
         go_vector = "GO:0005515",
-        org.package = "org.Otauri.eg.db", go_column = "GO",
+        org.package = org_Otaurireduced_eg_db, go_column = "GO",
         id_column = "GID"
     )
     list_result <- gene_list_to_phases(go.list.test, total_phases_table_sd)
@@ -22,7 +22,7 @@ test_that("gene_list_to_phases returns a list", {
 
 test_that("throws an error if phase table is not a two-column
           data.frame with columns named names and phase", {
-    library(org.Otauri.eg.db)
+    org_Otaurireduced_eg_db <- load_example_annot()
     data("circa_table_genescarab")
 
     total_phases_table_sd <- data.frame(
@@ -34,7 +34,7 @@ test_that("throws an error if phase table is not a two-column
 
     go.list.test <- create_gene_list_go(
         go_vector = "GO:0005515",
-        org.package = "org.Otauri.eg.db", go_column = "GO",
+        org.package = org_Otaurireduced_eg_db, go_column = "GO",
         id_column = "GID"
     )
 

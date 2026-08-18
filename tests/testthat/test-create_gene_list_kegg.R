@@ -2,9 +2,9 @@ library(testthat)
 library(GeneSCARAB)
 
 test_that("create_gene_list_kegg returns a list", {
-    library("org.Knitens.eg.db")
+    org_Otaurireduced_eg_db <- load_example_annot()
     ko.list.test <- create_gene_list_kegg(
-        ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+        ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
         ko_column = "KO", id_column = "GID", ko_prefix = "map",
         species = "plants"
     )
@@ -13,9 +13,10 @@ test_that("create_gene_list_kegg returns a list", {
 
 test_that("throws an error if KO column do not coincide with
           that of the package", {
+    org_Otaurireduced_eg_db <- load_example_annot()
     expect_error(
         ko.list.test <- create_gene_list_kegg(
-            ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+            ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
             ko_column = "KOT", id_column = "GID", ko_prefix = "map",
             species = "plants"
         ),
@@ -25,9 +26,10 @@ test_that("throws an error if KO column do not coincide with
 
 test_that("throws an error if ID column do not coincide with
           that of the package", {
+    org_Otaurireduced_eg_db <- load_example_annot()
     expect_error(
         ko.list.test <- create_gene_list_kegg(
-            ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+            ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
             ko_column = "KO", id_column = "GIDS", ko_prefix = "map",
             species = "plants"
         ),
@@ -35,22 +37,11 @@ test_that("throws an error if ID column do not coincide with
     )
 })
 
-test_that("throws an error if the selected annotation package
-          is not available", {
-    expect_error(
-        ko.list.test <- create_gene_list_kegg(
-            ko_vector = "K10666", org.package = "org.Ag.eg.db",
-            ko_column = "KO", id_column = "GID", ko_prefix = "map",
-            species = "plants"
-        ),
-        "Annotation package name do not correspond"
-    )
-})
-
 test_that("throws an error if prefix is not one of the supported ones", {
+    org_Otaurireduced_eg_db <- load_example_annot()
     expect_error(
         ko.list.test <- create_gene_list_kegg(
-            ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+            ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
             ko_column = "KO", id_column = "GID", ko_prefix = "ole",
             species = "plants"
         ),
@@ -59,9 +50,10 @@ test_that("throws an error if prefix is not one of the supported ones", {
 })
 
 test_that("throws an error if species is not one of the supported ones", {
+    org_Otaurireduced_eg_db <- load_example_annot()
     expect_error(
         ko.list.test <- create_gene_list_kegg(
-            ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+            ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
             ko_column = "KO", id_column = "GID", ko_prefix = "map",
             species = "horses"
         ),

@@ -11,7 +11,8 @@ create_gene_list_go(go_vector = c("all"), org.package, go_column, id_column)
 analysis, along with their ancestors. "all" takes the
 complete set from the annotation package}
 
-\item{org.package}{Species annotation package}
+\item{org.package}{OrgDb object from species annotation package
+(*.db)}
 
 \item{go_column}{GO term column name in the annotation package}
 
@@ -27,10 +28,10 @@ term based on a species annotation package. This includes
 all ancestor GO terms of the selected ones.
 }
 \examples{
-library(org.Otauri.eg.db)
+org_Otaurireduced_eg_db <- load_example_annot()
 go.list.test <- create_gene_list_go(
     go_vector = "GO:0005515",
-    org.package = "org.Otauri.eg.db", go_column = "GO",
+    org.package = org_Otaurireduced_eg_db, go_column = "GO",
     id_column = "GID"
 )
 

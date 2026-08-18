@@ -23,6 +23,7 @@
 #'
 #' ## Main functions
 #'
+#' * [load_example_annot()] loads example annotation data.
 #' * [create_gene_list_go()] creates a list of elements associated with each GO
 #' term based on a species annotation package.
 #' * [create_gene_list_kegg()] create a list of elements associated with each
@@ -66,7 +67,7 @@
 #'
 #' @returns The critical value for the test
 #'
-HermansRasson2T <- function(sample) {
+.HermansRasson2T <- function(sample) {
     n <- length(sample)
     total <- 0
     for (i in seq_len(n)) {
@@ -97,7 +98,7 @@ HermansRasson2T <- function(sample) {
 #'
 #' @returns The p-value for the test
 #'
-HermansRasson2PGroupedRad <- function(sample, m, iter = 9999) {
+.HermansRasson2PGroupedRad <- function(sample, m, iter = 9999) {
     k <- (m^2) / (pi^2)
     sample <- circular::circular(sample)
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
@@ -120,7 +121,7 @@ HermansRasson2PGroupedRad <- function(sample, m, iter = 9999) {
         ))
         data1 <- data1 + errorsamp
         data1 <- ifelse((data1 > (2 * pi)), (data1 - (2 * pi)), data1)
-        testset[f] <- HermansRasson2T(data1)
+        testset[f] <- .HermansRasson2T(data1)
     }
     errorsamp2 <- circular::rvonmises(n, 0, k, control.circular = list(
         units =
@@ -128,7 +129,7 @@ HermansRasson2PGroupedRad <- function(sample, m, iter = 9999) {
     ))
     sample <- sample + errorsamp2
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
-    Tsample <- HermansRasson2T(sample)
+    Tsample <- .HermansRasson2T(sample)
     counter <- 0
     for (j in seq_len(univals)) {
         if (testset[j] >= Tsample) {
@@ -151,7 +152,7 @@ HermansRasson2PGroupedRad <- function(sample, m, iter = 9999) {
 #'
 #' @returns The critical value for the test
 #'
-RaoTestValue <- function(sample) {
+.RaoTestValue <- function(sample) {
     n <- length(sample)
     f <- sort(sample)
     fplus <- c(f[2:n], f[1])
@@ -177,7 +178,7 @@ RaoTestValue <- function(sample) {
 #'
 #' @returns The p-value for the test
 #'
-RaoTestUngroupedRad <- function(sample, iter = 9999) {
+.RaoTestUngroupedRad <- function(sample, iter = 9999) {
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
     sample <- ifelse((sample < (0)), (sample + (2 * pi)), sample)
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
@@ -190,9 +191,9 @@ RaoTestUngroupedRad <- function(sample, iter = 9999) {
             n,
             control.circular = list(units = "radians")
         )
-        testset[f] <- RaoTestValue(data1)
+        testset[f] <- .RaoTestValue(data1)
     }
-    Tsample <- RaoTestValue(sample)
+    Tsample <- .RaoTestValue(sample)
     counter <- 0
     for (j in seq_len(univals)) {
         if (testset[j] >= Tsample) {
@@ -219,7 +220,7 @@ RaoTestUngroupedRad <- function(sample, iter = 9999) {
 #'
 #' @returns The p-value for the test
 #'
-RaoPGroupedRad <- function(sample, m, iter = 9999) {
+.RaoPGroupedRad <- function(sample, m, iter = 9999) {
     k <- (m^2) / (pi^2)
     sample <- circular::circular(sample)
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
@@ -242,7 +243,7 @@ RaoPGroupedRad <- function(sample, m, iter = 9999) {
         ))
         data1 <- data1 + errorsamp
         data1 <- ifelse((data1 > (2 * pi)), (data1 - (2 * pi)), data1)
-        testset[f] <- RaoTestValue(data1)
+        testset[f] <- .RaoTestValue(data1)
     }
     errorsamp2 <- circular::rvonmises(n, 0, k, control.circular = list(
         units =
@@ -250,7 +251,7 @@ RaoPGroupedRad <- function(sample, m, iter = 9999) {
     ))
     sample <- sample + errorsamp2
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
-    Tsample <- RaoTestValue(sample)
+    Tsample <- .RaoTestValue(sample)
     counter <- 0
     for (j in seq_len(univals)) {
         if (testset[j] >= Tsample) {
@@ -276,7 +277,7 @@ RaoPGroupedRad <- function(sample, m, iter = 9999) {
 #'
 #' @returns The p-value for the test
 #'
-KuiperPGroupedRad <- function(sample, m, iter = 9999) {
+.KuiperPGroupedRad <- function(sample, m, iter = 9999) {
     k <- (m^2) / (pi^2)
     sample <- circular::circular(sample)
     sample <- ifelse((sample > (2 * pi)), (sample - (2 * pi)), sample)
@@ -331,7 +332,7 @@ KuiperPGroupedRad <- function(sample, m, iter = 9999) {
 #'
 #' @returns A vector containing ancestors of GO terms
 #'
-get_ancestor_for_gene_lists <- function(go_vector) {
+.get_ancestor_for_gene_lists <- function(go_vector) {
     # Get ancestors of selected GOs for BP, MF and CC
     bp_ancestors <- BiocGenerics::mget(go_vector, GO.db::GOBPANCESTOR,
         ifnotfound =
@@ -373,37 +374,33 @@ get_ancestor_for_gene_lists <- function(go_vector) {
 #' @param go_vector GO terms vector to be included in the
 #' analysis, along with their ancestors. "all" takes the
 #' complete set from the annotation package
-#' @param org.package Species annotation package
+#' @param org.package OrgDb object from species annotation package 
+#' (*.db)
 #' @param go_column GO term column name in the annotation package
 #' @param id_column Gene ID column name in the annotation package
 #'
 #' @returns A data.frame showing GO terms per gene as appear
 #' in the annotation package
 #'
-input_create_gene_list_go <- function(go_vector, org.package,
+.input_create_gene_list_go <- function(go_vector, org.package,
                                       go_column, id_column) {
     if (!is.character(go_vector)) {
         stop("Input must be a vector of GO terms as characters.")
     }
 
-    if (!(org.package %in% rownames(utils::installed.packages()))) {
-        stop("Annotation package name do not correspond to an installed
-         package.")
-    }
-
     if (!(go_column %in% AnnotationDbi::columns(
-        getExportedValue(org.package, org.package)
+        org.package
     )) |
         !(id_column %in% AnnotationDbi::columns(
-            getExportedValue(org.package, org.package)
+            org.package
         ))) {
         stop("ID or GO column names do not match those
            of the annotation package.")
     }
 
     functional_data <- AnnotationDbi::select(
-        get(org.package),
-        keys = AnnotationDbi::keys(get(org.package),
+        org.package,
+        keys = AnnotationDbi::keys(org.package,
             keytype = id_column
         ), columns = c(id_column, go_column)
     )
@@ -420,7 +417,8 @@ input_create_gene_list_go <- function(go_vector, org.package,
 #' @param go_vector GO terms vector to be included in the
 #' analysis, along with their ancestors. "all" takes the
 #' complete set from the annotation package
-#' @param org.package Species annotation package
+#' @param org.package OrgDb object from species annotation package 
+#' (*.db)
 #' @param go_column GO term column name in the annotation package
 #' @param id_column Gene ID column name in the annotation package
 #'
@@ -429,10 +427,10 @@ input_create_gene_list_go <- function(go_vector, org.package,
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = "GO:0005515",
-#'     org.package = "org.Otauri.eg.db", go_column = "GO",
+#'     org.package = org_Otaurireduced_eg_db, go_column = "GO",
 #'     id_column = "GID"
 #' )
 #'
@@ -440,14 +438,14 @@ create_gene_list_go <- function(go_vector = c("all"),
                                 org.package,
                                 go_column,
                                 id_column) {
-    functional_data <- input_create_gene_list_go(
+    functional_data <- .input_create_gene_list_go(
         go_vector, org.package, go_column, id_column
     )
     if (length(go_vector) == 1 & go_vector[1] == "all") {
         go_vector <- unique(functional_data[[go_column]])
         go_vector <- go_vector[!is.na(go_vector)]
     }
-    go_vec_ancestors <- get_ancestor_for_gene_lists(go_vector)
+    go_vec_ancestors <- .get_ancestor_for_gene_lists(go_vector)
     # Add go terms in study to the ancestors list to get successors
     query_vec_ancestors <- c(go_vec_ancestors, go_vector)
     query_vec_ancestors <- unique(query_vec_ancestors)
@@ -483,7 +481,6 @@ create_gene_list_go <- function(go_vector = c("all"),
     return(go.list)
 }
 
-
 #' Input checking for create_gene_list_kegg
 #'
 #' Helper function checking correctness of input for
@@ -493,7 +490,8 @@ create_gene_list_go <- function(go_vector = c("all"),
 #' @param ko_vector KO vector to be included in the analysis,
 #' along with their pathways ancestors. "all" takes the
 #' complete set from the annotation package
-#' @param org.package Species annotation package
+#' @param org.package OrgDb object from species annotation package 
+#' (*.db)
 #' @param ko_column KO column name in the annotation package
 #' @param id_column Gene ID column name in the annotation package
 #' @param ko_prefix Prefix used to denote KEGG pathways, either
@@ -505,23 +503,18 @@ create_gene_list_go <- function(go_vector = c("all"),
 #' @returns A data.frame showing KO terms per gene as appear
 #' in the annotation package
 #'
-input_create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
+.input_create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
                                         ko_column, id_column, ko_prefix = "map",
                                         species = "all") {
     if (!is.character(ko_vector)) {
         stop("Input must be a vector of KO terms as characters.")
     }
 
-    if (!(org.package %in% rownames(utils::installed.packages()))) {
-        stop("Annotation package name do not correspond to an installed
-         package.")
-    }
-
     if (!(ko_column %in% AnnotationDbi::columns(
-        getExportedValue(org.package, org.package)
+        org.package
     )) |
         !(id_column %in% AnnotationDbi::columns(
-            getExportedValue(org.package, org.package)
+            org.package
         ))) {
         stop("ID or KO column names do not match those
            of the annotation package.")
@@ -542,8 +535,8 @@ input_create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
     }
 
     functional_data <- AnnotationDbi::select(
-        get(org.package),
-        keys = AnnotationDbi::keys(get(org.package),
+        org.package,
+        keys = AnnotationDbi::keys(org.package,
             keytype = id_column
         ), columns = c(id_column, ko_column)
     )
@@ -565,7 +558,7 @@ input_create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
 #' @returns A list of pathways associated to the KO
 #' terms input
 #'
-pathways_from_kos <- function(ko_vector, ko_prefix)
+.pathways_from_kos <- function(ko_vector, ko_prefix)
 {
     {
         if (length(ko_vector) < 500) {
@@ -623,7 +616,8 @@ pathways_from_kos <- function(ko_vector, ko_prefix)
 #' @param ko_vector KO vector to be included in the analysis,
 #' along with their pathways ancestors. "all" takes the
 #' complete set from the annotation package
-#' @param org.package Species annotation package
+#' @param org.package OrgDb object from species annotation package 
+#' (*.db)
 #' @param ko_column KO column name in the annotation package
 #' @param id_column Gene ID column name in the annotation package
 #' @param ko_prefix Prefix used to denote KEGG pathways, either
@@ -637,9 +631,9 @@ pathways_from_kos <- function(ko_vector, ko_prefix)
 #' @export
 #'
 #' @examples
-#' library("org.Knitens.eg.db")
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' create_gene_list_kegg(
-#'     ko_vector = "K10666", org.package = "org.Knitens.eg.db",
+#'     ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
 #'     ko_column = "KO", id_column = "GID", ko_prefix = "map",
 #'     species = "plants"
 #' )
@@ -647,7 +641,7 @@ pathways_from_kos <- function(ko_vector, ko_prefix)
 create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
                                   ko_column, id_column, ko_prefix = "map",
                                   species = "all") {
-    functional_data <- input_create_gene_list_kegg(
+    functional_data <- .input_create_gene_list_kegg(
         ko_vector, org.package, ko_column, id_column,
         ko_prefix, species
     )
@@ -656,7 +650,7 @@ create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
         complete_kos <- unique(functional_data[[ko_column]])
         ko_vector <- complete_kos[!is.na(complete_kos)]
     }
-    kos_pathways <- pathways_from_kos(ko_vector, ko_prefix)
+    kos_pathways <- .pathways_from_kos(ko_vector, ko_prefix)
     kos_pathways <- tapply(
         kos_pathways,
         INDEX = names(kos_pathways),
@@ -711,7 +705,7 @@ create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #'
 #' total_phases_table_sd <- data.frame(
@@ -722,7 +716,7 @@ create_gene_list_kegg <- function(ko_vector = c("all"), org.package,
 #' )
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = "GO:0005515",
-#'     org.package = "org.Otauri.eg.db", go_column = "GO",
+#'     org.package = org_Otaurireduced_eg_db, go_column = "GO",
 #'     id_column = "GID"
 #' )
 #' gene_list_to_phases(go.list.test, total_phases_table_sd)
@@ -761,7 +755,7 @@ gene_list_to_phases <- function(gene.list, phase.table) {
 #' second and third quantiles of the circular distribution
 #' in hours; and p-values for each of the four tests
 #'
-table_builder <- function(circa_summary, circa_var, circa_kuiper,
+.table_builder <- function(circa_summary, circa_var, circa_kuiper,
                           circa_ray, circa_hr, circa_rao) {
     circa_table <- data.frame(
         n = circa_summary["n"],
@@ -779,17 +773,17 @@ table_builder <- function(circa_summary, circa_var, circa_kuiper,
     return(circa_table)
 }
 
-#' Input checking for create_circular_table and
-#' create_circular_table_grouped
+#' Input checking for .create_circular_table and
+#' .create_circular_table_grouped
 #'
 #' Helper function checking correctness of input for
-#' create_circular_table and create_circular_table_grouped
+#' .create_circular_table and .create_circular_table_grouped
 #'
 #' @param circa_vector Phases vector in hours
 #'
 #' @returns An error if input is not adequate
 #'
-input_create_circular_table <- function(circa_vector) {
+.input_create_circular_table <- function(circa_vector) {
     if (!methods::is(circa_vector, "numeric")) {
         stop("circa_vector must be a numeric vector of phases
          measured in hours.")
@@ -822,12 +816,12 @@ input_create_circular_table <- function(circa_vector) {
 #' second and third quantiles of the circular distribution
 #' in hours; and p-values for each of the four tests
 #'
-create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
+.create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
                                   iter.hr = 999, force.hr.th = 0.05,
                                   rao.on.large.sets.th = 400,
                                   iter.rao = 999,
                                   force.rao.th = 0.05) {
-    input_create_circular_table(circa_vector)
+    .input_create_circular_table(circa_vector)
     circa_radians <- circular::circular(circa_vector * pi / 12)
     circa_summary <- summary(circa_radians)
     circa_var <- circular::var.circular(circa_radians)
@@ -859,9 +853,9 @@ create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
     } else if (isTRUE(length(circa_radians) >= rao.on.large.sets.th)) {
         circa_rao <- NA
     } else {
-        circa_rao <- RaoTestUngroupedRad(circa_radians, iter = iter.rao)
+        circa_rao <- .RaoTestUngroupedRad(circa_radians, iter = iter.rao)
     }
-    circa_table <- table_builder(
+    circa_table <- .table_builder(
         circa_summary, circa_var, circa_kuiper,
         circa_ray, circa_hr, circa_rao
     )
@@ -902,7 +896,7 @@ create_circular_table <- function(circa_vector, hr.on.large.sets.th = 400,
 #' quartiles of the circular distribution in hours; and
 #'  p-values for each of the four tests
 #'
-create_circular_table_grouped <- function(circa_vector, n_bins,
+.create_circular_table_grouped <- function(circa_vector, n_bins,
                                           hr.on.large.sets.th = 400,
                                           iter.hr = 999, force.hr.th = 0.05,
                                           rao.on.large.sets.th = 400,
@@ -910,7 +904,7 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
                                           kuiper.on.large.sets.th = 400,
                                           iter.kuiper = 999,
                                           force.kuiper.th = 0.05) {
-    input_create_circular_table(circa_vector)
+    .input_create_circular_table(circa_vector)
     circa_radians <- circular::circular(circa_vector * pi / 12)
     circa_summary <- summary(circa_radians)
     circa_var <- circular::var.circular(circa_radians)
@@ -925,7 +919,7 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
     } else if (isTRUE(length(circa_radians) >= kuiper.on.large.sets.th)) {
         circa_kuiper <- NA
     } else {
-        circa_kuiper <- KuiperPGroupedRad(circa_radians,
+        circa_kuiper <- .KuiperPGroupedRad(circa_radians,
             m = n_bins, iter = iter.kuiper
         )}
     if (iter.hr == 0) {circa_hr <- NA
@@ -933,7 +927,7 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
         circa_kuiper <= force.hr.th)) { circa_hr <- NA
     } else if (isTRUE(length(circa_radians) >= hr.on.large.sets.th)) {
         circa_hr <- NA
-    } else { circa_hr <- HermansRasson2PGroupedRad(circa_radians,
+    } else { circa_hr <- .HermansRasson2PGroupedRad(circa_radians,
             m = n_bins, iter = iter.hr
         )}
     if (iter.rao == 0) { circa_rao <- NA
@@ -943,10 +937,10 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
     } else if (isTRUE(length(circa_radians) >= rao.on.large.sets.th)) {
         circa_rao <- NA
     } else {
-        circa_rao <- RaoPGroupedRad(
+        circa_rao <- .RaoPGroupedRad(
             circa_radians, m = n_bins, iter = iter.rao
         )}
-    circa_table <- table_builder(
+    circa_table <- .table_builder(
         circa_summary, circa_var, circa_kuiper, circa_ray, circa_hr, circa_rao
     )
     return(circa_table)
@@ -963,7 +957,7 @@ create_circular_table_grouped <- function(circa_vector, n_bins,
 #'
 #' @returns An error if input is not adequate
 #'
-input_complete_circular_table <- function(phase.list) {
+.input_complete_circular_table <- function(phase.list) {
     if (any(!unique(c(unlist(vapply(phase.list, colnames, character(2))))) %in% c("names", "phase"))) {
         stop("Check that all tables in the list use names and phase as
          column names.")
@@ -1005,14 +999,14 @@ input_complete_circular_table <- function(phase.list) {
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
 #'     phase = as.numeric(circa_table_genescarab[["sd.peak.time.hours"]])
 #' )
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -1025,7 +1019,7 @@ input_complete_circular_table <- function(phase.list) {
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -1050,9 +1044,9 @@ complete_circular_table <- function(phase.list,
                                     rao.on.large.sets.th = 400,
                                     iter.rao = 999,
                                     force.rao.th = 0.05) {
-    input_complete_circular_table(phase.list)
+    .input_complete_circular_table(phase.list)
     go_circa_res <- lapply(phase.list, function(x) {
-        create_circular_table(
+        .create_circular_table(
             x$phase, hr.on.large.sets.th = hr.on.large.sets.th,
             iter.hr = iter.hr, force.hr.th = force.hr.th,
             rao.on.large.sets.th = rao.on.large.sets.th,
@@ -1131,7 +1125,7 @@ complete_circular_table <- function(phase.list,
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -1144,8 +1138,8 @@ complete_circular_table <- function(phase.list,
 #'     phase = trunc(total_phases_table_sd$phase)
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -1158,7 +1152,7 @@ complete_circular_table <- function(phase.list,
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -1183,9 +1177,9 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
                                             kuiper.on.large.sets.th = 400,
                                             iter.kuiper = 999,
                                             force.kuiper.th = 0.05) {
-    input_complete_circular_table(phase.list)
+    .input_complete_circular_table(phase.list)
     go_circa_res <- lapply(phase.list, function(x) {
-        create_circular_table_grouped(
+        .create_circular_table_grouped(
             x$phase, n_bins = n_bins,
             hr.on.large.sets.th = hr.on.large.sets.th,
             iter.hr = iter.hr, force.hr.th = force.hr.th,
@@ -1245,7 +1239,7 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -1254,8 +1248,8 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
 #'     )
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -1268,7 +1262,7 @@ complete_circular_table_grouped <- function(phase.list, n_bins,
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -1347,7 +1341,7 @@ test_against_gen_dist <- function(phase.list, total.phase.table) {
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -1362,8 +1356,8 @@ test_against_gen_dist <- function(phase.list, total.phase.table) {
 #'     )
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -1376,7 +1370,7 @@ test_against_gen_dist <- function(phase.list, total.phase.table) {
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -1387,10 +1381,10 @@ test_against_gen_dist <- function(phase.list, total.phase.table) {
 #' )][seq_len(3)]
 #'
 #' phases.list.ld <- gene_list_to_phases(
-#'     go.list.test, total_phases_table_sd
+#'     go.list.test, total_phases_table_ld
 #' )
-#' phases.list.ld.clean <- phases.list.sd[which(
-#'     sapply(phases.list.sd, nrow) != 0
+#' phases.list.ld.clean <- phases.list.ld[which(
+#'     sapply(phases.list.ld, nrow) != 0
 #' )][names(phases.list.sd.clean)]
 #'
 #'
@@ -1463,7 +1457,7 @@ test_two_dist <- function(phase.list.1, phase.list.2) {
 #' @returns A phase list containing only elements that appear in
 #' circa_result rows
 #'
-input_gene_contribution <- function(circa_result, phase_list) {
+.input_gene_contribution <- function(circa_result, phase_list) {
     if (sum(rownames(circa_result) %in% names(phase_list)) == 0) {
         stop("Names of circa_result rows do not match names of phase_list")
     }
@@ -1501,7 +1495,7 @@ input_gene_contribution <- function(circa_result, phase_list) {
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(
@@ -1512,8 +1506,8 @@ input_gene_contribution <- function(circa_result, phase_list) {
 #'     )
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -1526,7 +1520,7 @@ input_gene_contribution <- function(circa_result, phase_list) {
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -1552,7 +1546,7 @@ input_gene_contribution <- function(circa_result, phase_list) {
 #' )
 #'
 gene_contribution_to_set <- function(circa_result, phase_list) {
-    phase_list <- input_gene_contribution(circa_result, phase_list)
+    phase_list <- .input_gene_contribution(circa_result, phase_list)
     res_lot <- list()
 
     for (x in names(phase_list))
@@ -1613,7 +1607,7 @@ gene_contribution_to_set <- function(circa_result, phase_list) {
 #' @returns A vector containing the p-values for 1,2 and 3
 #' f-fold symmetry
 #'
-multimodal_modes_test <- function(phase_table) {
+.multimodal_modes_test <- function(phase_table) {
     if (!("phase" %in% colnames(phase_table))) {
         stop("No column named phase detected in phase_table")
     }
@@ -1667,7 +1661,7 @@ multimodal_modes_test <- function(phase_table) {
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -1675,8 +1669,8 @@ multimodal_modes_test <- function(phase_table) {
 #'         circa_table_genescarab[["sd.peak.time.hours"]]
 #'     )
 #' )
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -1687,7 +1681,7 @@ multimodal_modes_test <- function(phase_table) {
 #' ), 50, replace = FALSE)]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -1714,7 +1708,7 @@ multimodal_modes_test <- function(phase_table) {
 #' multimodal_list <- multimodal_analysis(phase_table_multi_go)
 #'
 multimodal_analysis <- function(phase_table) {
-    modes.vector <- multimodal_modes_test(phase_table)
+    modes.vector <- .multimodal_modes_test(phase_table)
 
     expected_modes <- which.min(modes.vector)
     expected_p_value <- min(modes.vector)
@@ -1771,7 +1765,7 @@ multimodal_analysis <- function(phase_table) {
 #'
 #' @returns Axis
 
-helper_init_plot <- function() {
+.helper_init_plot <- function() {
     circlize::circos.par(
         "start.degree" = 90,
         cell.padding = c(0, 0, 0, 0),
@@ -1809,7 +1803,7 @@ helper_init_plot <- function() {
 #' @param my_color Color vector to use
 #'
 #' @returns Legend of the plots
-legend_builder_boxplot <- function(quan.table, my_color) {
+.legend_builder_boxplot <- function(quan.table, my_color) {
     my_legend <- ComplexHeatmap::Legend(
         at = quan.table$go,
         legend_gp = grid::gpar(fill = my_color),
@@ -1839,7 +1833,7 @@ legend_builder_boxplot <- function(quan.table, my_color) {
 #' @param my_color Color vector to use
 #'
 #' @returns Plotted track
-track_box_no_cut <- function(tr.height, quan.table, i, my_color) {
+.track_box_no_cut <- function(tr.height, quan.table, i, my_color) {
     circlize::circos.track(
         ylim = c(0, 1.5), track.height = tr.height,
         bg.col = "#eaeded", bg.border = NA,
@@ -1892,7 +1886,7 @@ track_box_no_cut <- function(tr.height, quan.table, i, my_color) {
 #' @param my_color Color vector to use
 #'
 #' @returns Plotted track
-track_box_segments_cut <- function(tr.height, quan.table, i, my_color) {
+.track_box_segments_cut <- function(tr.height, quan.table, i, my_color) {
     circlize::circos.track(
         ylim = c(0, 1.5), track.height = tr.height,
         bg.col = "#eaeded", bg.border = NA,
@@ -1952,7 +1946,7 @@ track_box_segments_cut <- function(tr.height, quan.table, i, my_color) {
 #' @param my_color Color vector to use
 #'
 #' @returns Plotted track
-track_box_box_cut <- function(tr.height, quan.table, i, my_color) {
+.track_box_box_cut <- function(tr.height, quan.table, i, my_color) {
     circlize::circos.track(
         ylim = c(0, 1.5), track.height = tr.height,
         bg.col = "#eaeded", bg.border = NA,
@@ -2014,7 +2008,7 @@ track_box_box_cut <- function(tr.height, quan.table, i, my_color) {
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -2023,8 +2017,8 @@ track_box_box_cut <- function(tr.height, quan.table, i, my_color) {
 #'     )
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -2037,7 +2031,7 @@ track_box_box_cut <- function(tr.height, quan.table, i, my_color) {
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -2068,7 +2062,7 @@ circular_boxplot <- function(res.table,
         min = res.table$first - sem, max = res.table$third + sem
     )
 
-    helper_init_plot()
+    .helper_init_plot()
     my_color <- MetBrewer::met.brewer(color.palette,
         n = nrow(quan.table)
     )
@@ -2081,10 +2075,10 @@ circular_boxplot <- function(res.table,
             # If neither of the segments cut the sunrise,
             # there is nothing to unfold
             if (quan.table$min[i] < quan.table$max[i]) {
-                track_box_no_cut(tr.height, quan.table, i, my_color)
+                .track_box_no_cut(tr.height, quan.table, i, my_color)
             } else if (quan.table$min[i] > quan.table$first[i] |
                 quan.table$max[i] < quan.table$third[i]) {
-                track_box_segments_cut(
+                .track_box_segments_cut(
                     tr.height, quan.table, i,
                     my_color
                 )
@@ -2093,11 +2087,11 @@ circular_boxplot <- function(res.table,
 
         # If the box cuts the dawn time
         else {
-            track_box_box_cut(tr.height, quan.table, i, my_color)
+            .track_box_box_cut(tr.height, quan.table, i, my_color)
         }
     }}
 
-    legend_builder_boxplot(quan.table, my_color)
+    .legend_builder_boxplot(quan.table, my_color)
 
     circlize::circos.clear()
 }
@@ -2116,7 +2110,7 @@ circular_boxplot <- function(res.table,
 #' @param my_transparent Transparent color vector to use
 #'
 #' @returns Axis
-track_dot <- function(tr.height, phases.list, i, my_color, my_transparent) {
+.track_dot <- function(tr.height, phases.list, i, my_color, my_transparent) {
     circlize::circos.track(
         ylim = c(0, 1.5),
         track.height = tr.height,
@@ -2156,7 +2150,7 @@ track_dot <- function(tr.height, phases.list, i, my_color, my_transparent) {
 #' @param my_color Color vector to use
 #'
 #' @returns Legend of the plots
-legend_builder <- function(phases.list, my_color) {
+.legend_builder <- function(phases.list, my_color) {
     my_legend <- ComplexHeatmap::Legend(
         names(phases.list),
         legend_gp = grid::gpar(fill = my_color),
@@ -2189,7 +2183,7 @@ legend_builder <- function(phases.list, my_color) {
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -2198,8 +2192,8 @@ legend_builder <- function(phases.list, my_color) {
 #'     )
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -2212,7 +2206,7 @@ legend_builder <- function(phases.list, my_color) {
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -2226,7 +2220,7 @@ legend_builder <- function(phases.list, my_color) {
 circular_dotplot <- function(phases.list,
                              color.palette = "Tam",
                              tr.height = 0.1) {
-    helper_init_plot()
+    .helper_init_plot()
 
     my_color <- MetBrewer::met.brewer(color.palette, n = length(phases.list))
     my_transparent <- vapply(my_color, function(x) {
@@ -2235,10 +2229,10 @@ circular_dotplot <- function(phases.list,
 
     for (i in seq_len(length(phases.list)))
     {
-        track_dot(tr.height, phases.list, i, my_color, my_transparent)
+        .track_dot(tr.height, phases.list, i, my_color, my_transparent)
     }
 
-    legend_builder(phases.list, my_color)
+    .legend_builder(phases.list, my_color)
 
     circlize::circos.clear()
 }
@@ -2261,7 +2255,7 @@ circular_dotplot <- function(phases.list,
 #' @export
 #'
 #' @examples
-#' library(org.Otauri.eg.db)
+#' org_Otaurireduced_eg_db <- load_example_annot()
 #' data("circa_table_genescarab")
 #' total_phases_table_sd <- data.frame(
 #'     names = rownames(circa_table_genescarab),
@@ -2270,8 +2264,8 @@ circular_dotplot <- function(phases.list,
 #'     )
 #' )
 #'
-#' functional_data <- select(org.Otauri.eg.db,
-#'     keys = keys(org.Otauri.eg.db, keytype = "GID"),
+#' functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+#'     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
 #'     columns = c("GID", "GO")
 #' )
 #' complete_gos <- unique(functional_data$GO)
@@ -2284,7 +2278,7 @@ circular_dotplot <- function(phases.list,
 #' )]
 #' go.list.test <- create_gene_list_go(
 #'     go_vector = subset_gos,
-#'     org.package = "org.Otauri.eg.db",
+#'     org.package = org_Otaurireduced_eg_db,
 #'     go_column = "GO", id_column = "GID"
 #' )
 #' phases.list.sd <- gene_list_to_phases(
@@ -2301,7 +2295,7 @@ circular_histogram <- function(phases.list,
                                color.palette = "Tam",
                                tr.height = 0.08,
                                nbins = 24) {
-    helper_init_plot()
+    .helper_init_plot()
     my_color <- MetBrewer::met.brewer(color.palette, n = length(phases.list))
     my_transparent <- vapply(
         my_color, function(x) circlize::add_transparency(x, 0.55),
@@ -2341,7 +2335,7 @@ circular_histogram <- function(phases.list,
             }
         )
     }
-    legend_builder(phases.list, my_color)
+    .legend_builder(phases.list, my_color)
     circlize::circos.clear()
 }
 
@@ -2356,3 +2350,61 @@ circular_histogram <- function(phases.list,
 #'
 #' @format Data frame
 "circa_table_genescarab"
+
+.geneSCARAB_env <- new.env(parent = emptyenv())
+
+#' Loading annotation for examples and vignettes
+#'
+#' Loading SQlite containing GO and KO annnotation info for Ostreococcus 
+#' tauri in AnnotationForge's output format. Original genome and
+#' annotation package were download from 
+#' https://github.com/fran-romero-campero/AlgaeFUN and KO information was 
+#' generated via KAAS (https://www.genome.jp/kaas-bin/kaas_main).
+#'
+#' @returns OrgDb object
+#' @export
+#'
+#' @examples
+#' org_Otaurireduced_eg_db <- load_example_annot()
+#'
+load_example_annot <- function() {
+  
+  if (exists("org_Otaurireduced_eg_db", envir = .geneSCARAB_env, inherits = FALSE)) {
+    return(get("org_Otaurireduced_eg_db", envir = .geneSCARAB_env))
+  }
+  
+  compressed_db <- system.file("extdata",
+    "org_Otaurireduced_eg_db.sqlite.gz", package = "GeneSCARAB")
+  
+  sqlite_db <- tempfile(
+    pattern = "GeneSCARAB_",
+    fileext = ".sqlite"
+  )
+  
+  con_in <- gzfile(compressed_db, "rb")
+  con_out <- file(sqlite_db, "wb")
+  
+  repeat {
+    actual_bin <- readBin(con_in, "raw", 1024^2)
+    if (length(actual_bin) == 0)
+      break
+    writeBin(actual_bin, con_out)
+  }
+  
+  close(con_in)
+  close(con_out)
+  
+  org_Otaurireduced_eg_db <- AnnotationDbi::loadDb(sqlite_db)
+  
+  assign(
+    "org_Otaurireduced_eg_db", org_Otaurireduced_eg_db,
+    envir = .geneSCARAB_env
+  )
+  
+  assign(
+    "sqlite_db", sqlite_db, envir = .geneSCARAB_env
+  )
+  
+  return(org_Otaurireduced_eg_db)
+}
+

@@ -65,7 +65,7 @@ for each one using the adapted Rayleigh, Kuiper,
 Hermans-Rasson, and Rao tests.
 }
 \examples{
-library(org.Otauri.eg.db)
+org_Otaurireduced_eg_db <- load_example_annot()
 data("circa_table_genescarab")
 total_phases_table_sd <- data.frame(
     names = rownames(circa_table_genescarab),
@@ -78,8 +78,8 @@ total_phases_table_sd_grouped <- data.frame(
     phase = trunc(total_phases_table_sd$phase)
 )
 
-functional_data <- select(org.Otauri.eg.db,
-    keys = keys(org.Otauri.eg.db, keytype = "GID"),
+functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+    keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
     columns = c("GID", "GO")
 )
 complete_gos <- unique(functional_data$GO)
@@ -92,7 +92,7 @@ subset_gos <- complete_gos[sample(
 )]
 go.list.test <- create_gene_list_go(
     go_vector = subset_gos,
-    org.package = "org.Otauri.eg.db",
+    org.package = org_Otaurireduced_eg_db,
     go_column = "GO", id_column = "GID"
 )
 phases.list.sd <- gene_list_to_phases(
