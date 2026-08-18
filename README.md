@@ -41,11 +41,77 @@ to adapt the analysis to any species of interest.
 
 GeneSCARAB can be installed as follows:
 
+``` r
+
+#This package is currently under review for inclusion in Bioconductor.
+
+#You can install the development version from GitHub (ramosgonzmarc/GeneSCARAB)
+if (!requireNamespace("remotes", quietly = TRUE))
+    install.packages("remotes")
+
+remotes::install_github("ramosgonzmarc/GeneSCARAB")
+```
+
 ## Quick start
 
 The first step of this tutorial consist on loading the package and the
 associated data. The annotation package used in this tutorial can be
 loaded using the `load_example_annot` function.
+
+``` r
+library(GeneSCARAB)
+
+org_Otaurireduced_eg_db <- load_example_annot()
+#> Cargando paquete requerido: AnnotationDbi
+#> Cargando paquete requerido: stats4
+#> Cargando paquete requerido: BiocGenerics
+#> Cargando paquete requerido: generics
+#> 
+#> Adjuntando el paquete: 'generics'
+#> The following objects are masked from 'package:base':
+#> 
+#>     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff, setequal, union
+#> 
+#> Adjuntando el paquete: 'BiocGenerics'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     IQR, mad, sd, var, xtabs
+#> The following object is masked from 'package:utils':
+#> 
+#>     data
+#> The following objects are masked from 'package:base':
+#> 
+#>     anyDuplicated, aperm, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq,
+#>     Filter, Find, get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin,
+#>     pmin.int, Position, rank, rbind, Reduce, rownames, sapply, saveRDS, scale, sequence, table, tapply, transform,
+#>     unique, unsplit, which.max, which.min
+#> Cargando paquete requerido: Biobase
+#> Welcome to Bioconductor
+#> 
+#>     Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see
+#>     'citation("Biobase")', and for packages 'citation("pkgname")'.
+#> Cargando paquete requerido: IRanges
+#> Cargando paquete requerido: S4Vectors
+#> 
+#> Adjuntando el paquete: 'S4Vectors'
+#> The following object is masked from 'package:utils':
+#> 
+#>     findMatches
+#> The following objects are masked from 'package:base':
+#> 
+#>     expand.grid, I, unname
+data("circa_table_genescarab")
+total_phases_table_ld <- data.frame(names = rownames(
+    circa_table_genescarab
+), phase = as.numeric(
+    circa_table_genescarab[["ld.peak.time.hours"]]
+))
+total_phases_table_sd <- data.frame(names = rownames(
+    circa_table_genescarab
+), phase = as.numeric(
+    circa_table_genescarab[["sd.peak.time.hours"]]
+))
+```
 
 The basic pipeline implemented in GeneSCARAB consists of taking an
 annotation package, a table with the estimated phases for each gene, and
@@ -64,12 +130,48 @@ phytoplankton” (\[doi.org/10.1093/plcell/koaf033\]
 
 We will first generate a subset of GOs using the annotation package.
 
+``` r
+functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
+    keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
+    columns = c("GID", "GO")
+)
+#> 'select()' returned 1:many mapping between keys and columns
+complete_gos <- unique(functional_data$GO)
+complete_gos <- complete_gos[!is.na(complete_gos)]
+
+set.seed(2345)
+subset_gos <- complete_gos[sample(
+    1:length(complete_gos), 50,
+    replace = FALSE
+)]
+```
+
 Then we generate a GO terms list with genes per GO term, including
 ancestors of selected GO terms.
+
+``` r
+go.list.test <- create_gene_list_go(
+    go_vector = subset_gos,
+    org.package = org_Otaurireduced_eg_db,
+    go_column = "GO", id_column = "GID"
+)
+#> 'select()' returned 1:many mapping between keys and columns
+#> 
+```
 
 We can use this list along with the total phase table to create a list
 of gene phases per GO for the short-day (SD) condition, and clean it by
 removing GOs with no associated rhythmic genes.
+
+``` r
+phases.list.sd <- gene_list_to_phases(
+    go.list.test,
+    total_phases_table_sd
+)
+phases.list.sd.clean <- phases.list.sd[which(
+    sapply(phases.list.sd, nrow) != 0
+)]
+```
 
 Based on this list, the `complete_circular_table` function allows the
 user to calculate a table showing the circular distribution of the
@@ -187,7 +289,7 @@ circular_histogram(plot_phase_list_7, color.palette = "Tam", nbins = 48)
 
 <figure>
 <img
-src="https://github.com/ramosgonzmarc/GeneSCARAB/tree/main/man/figures/sd_hist-1.png"
+src="/home/marcos/Escritorio/Marchantia/GeneSCARAB/genescarab_git/GeneSCARAB/README_files/figure-gfm/sd_hist-1.png"
 alt="Circular histogram showing the phase distribution of genes associated to some example GO terms." />
 <figcaption aria-hidden="true">Circular histogram showing the phase
 distribution of genes associated to some example GO terms.</figcaption>
@@ -247,6 +349,15 @@ using the `create_gene_list_kegg` function instead of
 `create_gene_list_go`. In addition, it allows you to filter pathways
 based on whether they belong to bacteria, archaea, plants, animals,
 fungi, or protists.
+
+``` r
+ko.list.test <- create_gene_list_kegg(
+     ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
+     ko_column = "KO", id_column = "GID", ko_prefix = "map",
+     species = "plants"
+ )
+#> 'select()' returned 1:1 mapping between keys and columns
+```
 
 #### Custom gene sets
 
@@ -533,8 +644,8 @@ sessionInfo()
 #>  [41] base64enc_0.1-6       OptCirClust_0.0.4     tidyselect_1.2.1      rnaturalearth_1.2.0   rstudioapi_0.19.0    
 #>  [46] yaml_2.3.12           doParallel_1.0.17     codetools_0.2-20      curl_7.1.0            tibble_3.3.1         
 #>  [51] KEGGREST_1.53.0       S7_0.2.2              evaluate_1.0.5        sf_1.1-1              units_1.0-1          
-#>  [56] proxy_0.4-29          RcppParallel_5.1.11-2 circlize_0.4.18       Biostrings_2.81.3     pillar_1.11.1        
-#>  [61] circular_0.5-2        BiocManager_1.30.27   KernSmooth_2.23-26    foreach_1.5.2         bigassertr_0.2.0     
+#>  [56] proxy_0.4-29          RcppParallel_5.1.11-2 circlize_0.4.18       Biostrings_2.81.3     BiocManager_1.30.27  
+#>  [61] pillar_1.11.1         circular_0.5-2        KernSmooth_2.23-26    foreach_1.5.2         bigassertr_0.2.0     
 #>  [66] ggplot2_4.0.3         scales_1.4.0          BiocStyle_2.41.0      class_7.3-23          glue_1.8.1           
 #>  [71] CircMLE_0.3.0         tools_4.6.1           Directional_7.6       Rnanoflann_0.0.3      mvtnorm_1.4-1        
 #>  [76] rgl_1.3.36            cowplot_1.2.0         grid_4.6.1            plotrix_3.8-14        Rfast2_0.1.5.6       

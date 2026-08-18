@@ -49,7 +49,7 @@ of interest.
 
 GeneSCARAB can be installed as follows:
 
-```{r install, echo=FALSE, message=FALSE, eval=FALSE}
+```{r install, eval=FALSE}
 
 #This package is currently under review for inclusion in Bioconductor.
 
@@ -67,7 +67,7 @@ The first step of this tutorial consist on loading the package
 and the associated data. The annotation package used in this tutorial 
 can be loaded using the `load_example_annot` function. 
 
-```{r setup, echo=FALSE, message=FALSE}
+```{r setup}
 library(GeneSCARAB)
 
 org_Otaurireduced_eg_db <- load_example_annot()
@@ -101,7 +101,7 @@ marine phytoplankton" ([doi.org/10.1093/plcell/koaf033]
 
 We will first generate a subset of GOs using the annotation package.
 
-```{r gos_sel, echo=FALSE, message=FALSE}
+```{r gos_sel}
 functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
     columns = c("GID", "GO")
@@ -119,7 +119,7 @@ subset_gos <- complete_gos[sample(
 Then we generate a GO terms list with genes per GO term, including 
 ancestors of selected GO terms.
 
-```{r gos_list, echo=FALSE, message=FALSE}
+```{r gos_list}
 go.list.test <- create_gene_list_go(
     go_vector = subset_gos,
     org.package = org_Otaurireduced_eg_db,
@@ -131,7 +131,7 @@ We can use this list along with the total phase table to create a
 list of gene phases per GO for the short-day (SD) condition, and 
 clean it by removing GOs with no associated rhythmic genes.
 
-```{r phases_list, echo=FALSE, message=FALSE}
+```{r phases_list}
 phases.list.sd <- gene_list_to_phases(
     go.list.test,
     total_phases_table_sd
@@ -289,7 +289,7 @@ package) using the `create_gene_list_kegg` function instead of
 pathways based on whether they belong to bacteria, archaea, 
 plants, animals, fungi, or protists.
 
-```{r kegg_set, echo=FALSE, message=FALSE}
+```{r kegg_set}
 ko.list.test <- create_gene_list_kegg(
      ko_vector = "K10666", org.package = org_Otaurireduced_eg_db,
      ko_column = "KO", id_column = "GID", ko_prefix = "map",
