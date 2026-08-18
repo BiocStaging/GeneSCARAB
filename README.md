@@ -62,44 +62,6 @@ loaded using the `load_example_annot` function.
 library(GeneSCARAB)
 
 org_Otaurireduced_eg_db <- load_example_annot()
-#> Cargando paquete requerido: AnnotationDbi
-#> Cargando paquete requerido: stats4
-#> Cargando paquete requerido: BiocGenerics
-#> Cargando paquete requerido: generics
-#> 
-#> Adjuntando el paquete: 'generics'
-#> The following objects are masked from 'package:base':
-#> 
-#>     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff, setequal, union
-#> 
-#> Adjuntando el paquete: 'BiocGenerics'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     IQR, mad, sd, var, xtabs
-#> The following object is masked from 'package:utils':
-#> 
-#>     data
-#> The following objects are masked from 'package:base':
-#> 
-#>     anyDuplicated, aperm, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq,
-#>     Filter, Find, get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin,
-#>     pmin.int, Position, rank, rbind, Reduce, rownames, sapply, saveRDS, scale, sequence, table, tapply, transform,
-#>     unique, unsplit, which.max, which.min
-#> Cargando paquete requerido: Biobase
-#> Welcome to Bioconductor
-#> 
-#>     Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see
-#>     'citation("Biobase")', and for packages 'citation("pkgname")'.
-#> Cargando paquete requerido: IRanges
-#> Cargando paquete requerido: S4Vectors
-#> 
-#> Adjuntando el paquete: 'S4Vectors'
-#> The following object is masked from 'package:utils':
-#> 
-#>     findMatches
-#> The following objects are masked from 'package:base':
-#> 
-#>     expand.grid, I, unname
 data("circa_table_genescarab")
 total_phases_table_ld <- data.frame(names = rownames(
     circa_table_genescarab
@@ -135,7 +97,7 @@ functional_data <- AnnotationDbi::select(org_Otaurireduced_eg_db,
     keys = AnnotationDbi::keys(org_Otaurireduced_eg_db, keytype = "GID"),
     columns = c("GID", "GO")
 )
-#> 'select()' returned 1:many mapping between keys and columns
+
 complete_gos <- unique(functional_data$GO)
 complete_gos <- complete_gos[!is.na(complete_gos)]
 
@@ -155,8 +117,7 @@ go.list.test <- create_gene_list_go(
     org.package = org_Otaurireduced_eg_db,
     go_column = "GO", id_column = "GID"
 )
-#> 'select()' returned 1:many mapping between keys and columns
-#> 
+
 ```
 
 We can use this list along with the total phase table to create a list
@@ -237,7 +198,7 @@ sd_rhythmic <- rownames(go.circa.table.sd)[
 ]
 sd_rhythmic <- unique(sd_rhythmic[!is.na(sd_rhythmic)])
 length(sd_rhythmic)
-#> [1] 182
+
 ```
 
 We can plot these results with 3 different visualizations. Let’s plot a
@@ -356,7 +317,7 @@ ko.list.test <- create_gene_list_kegg(
      ko_column = "KO", id_column = "GID", ko_prefix = "map",
      species = "plants"
  )
-#> 'select()' returned 1:1 mapping between keys and columns
+
 ```
 
 #### Custom gene sets
@@ -428,7 +389,7 @@ ld_rhythmic <- rownames(go.circa.table.ld)[
 ]
 ld_rhythmic <- unique(ld_rhythmic[!is.na(ld_rhythmic)])
 length(ld_rhythmic)
-#> [1] 191
+
 ```
 
 After this, we compare gene phase distributions under both conditions
@@ -445,7 +406,7 @@ diff_distributed_gos <- test_two_dist(
     phases.list.ld.clean[rhythmic_gos], phases.list.sd.clean[rhythmic_gos]
 )
 sum(diff_distributed_gos$p_value_adj < 0.05)
-#> [1] 133
+
 ```
 
 And we can plot one of these.
@@ -486,7 +447,7 @@ not_experimentally_distributed_gos <- test_against_gen_dist(
     phases.list.ld.clean[rhythmic_gos], total_phases_table_ld
 )
 sum(not_experimentally_distributed_gos$gen_dist_p_value_adj < 0.05)
-#> [1] 84
+
 ```
 
 ## Contribution of each individual element to the complete phase distribution of the set
@@ -511,8 +472,7 @@ distribution.
 ``` r
 ranked_mean <- sapply(gene_contributions, function(x) rownames(x)[1])
 ranked_mean
-#>      GO:0016773      GO:0016614      GO:0015291      GO:0015297      GO:0008169      GO:0016788 
-#> "ostta02g03550" "ostta05g01550" "ostta06g04580" "ostta05g00850" "ostta15g02385" "ostta08g01210"
+
 
 ranked_rho <- sapply(gene_contributions, function(x) {
     names(
@@ -520,8 +480,6 @@ ranked_rho <- sapply(gene_contributions, function(x) {
     )
 })
 ranked_rho
-#>      GO:0016773      GO:0016614      GO:0015291      GO:0015297      GO:0008169      GO:0016788 
-#> "ostta11g02240" "ostta12g01630" "ostta03g00190" "ostta08g04100" "ostta14g01980" "ostta03g01040"
 
 gene_of_interest_mean <- subset(
     phases.list.ld.clean$`GO:0016773`,
