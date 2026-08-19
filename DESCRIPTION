@@ -1,6 +1,6 @@
 Package: GeneSCARAB
 Title: Gene Set Circular Analysis for Rhythms Ascertainment in Bioprocesses
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: c(
     person("Marcos", "Ramos-González", email = "mramos5@us.es", role = c("aut", "cre"), comment=c(ORCID="0000-0001-9130-586X")),
     person("Emma", "Serrano-Pérez", email = "enma.serrano@ibvf.csic.es", role = "ctb", comment=c(ORCID="0000-0001-9350-7342")),
